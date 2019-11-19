@@ -192,7 +192,7 @@ def configure():
 def add_sla_to_template(template, sla_id):
     # Add the placement policy
 
-    if version.parse(utils.getOrchestratorVersion(settings.orchestratorUrl)) >= version.parse("2.2.0-SNAPSHOT"):
+    if version.parse(utils.getOrchestratorVersion(settings.orchestratorUrl).split('-')[0]) >= version.parse("2.2.0"):
         toscaSlaPlacementType = "tosca.policies.indigo.SlaPlacement"
     else:
         toscaSlaPlacementType = "tosca.policies.Placement"
