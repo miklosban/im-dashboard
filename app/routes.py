@@ -227,6 +227,9 @@ def createdep():
       if form_data['extra_opts.schedtype'] == "man":
           template = add_sla_to_template(template, form_data['extra_opts.selectedSLA'])
 
+      if 'extra_opts.providerTimeoutSet' in form_data:
+          params['providerTimeoutMins'] = form_data['extra_opts.providerTimeout']
+
       inputs = { k:v for (k,v) in form_data.items() if not k.startswith("extra_opts.") }
 
       app.logger.debug("Parameters: " + json.dumps(inputs))
