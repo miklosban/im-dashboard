@@ -1,8 +1,11 @@
- <div class="form-check form-check-inline">
+<div class="form-group">
+<div class="form-check form-check-inline">
      <input type="checkbox" class="form-check-input" id="providerTimeoutSet" name="extra_opts.providerTimeoutSet">
      <label class="form-check-label" style="white-space: nowrap;" for="providerTimeout">Set deployment creation timeout (min)  </label>
      <input type="number" class="form-control" id="providerTimeout" name="extra_opts.providerTimeout" style="width: 4em; height: 30px" min="5" value="" disabled>
- </div>
+ </div>    
+     <small id="providerTimeoutHelp" class="form-text text-muted">Supported only for <strong>managed</strong> long-running service deployments</small>
+</div>
 
  <div class="form-check">
      <input type="checkbox" class="form-check-input" id="keepLastAttempt" name="extra_opts.keepLastAttempt">
