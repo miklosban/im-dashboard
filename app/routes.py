@@ -235,11 +235,13 @@ def createdep():
       app.logger.debug("Parameters: " + json.dumps(inputs))
 
       payload = { "template" : yaml.dump(template,default_flow_style=False, sort_keys=False), "parameters": inputs }
+      # set additional params
+      payload.update(params)
 
 
   url = settings.orchestratorUrl +  "/deployments/"
   headers = {'Content-Type': 'application/json', 'Authorization': 'bearer %s' % (access_token)}
-  response = requests.post(url, json=payload, params=params, headers=headers)
+  response = requests.post(url, json=payload, headers=headers)
 
   if not response.ok:
      flash("Error submitting deployment: \n" + response.text)
