@@ -7,7 +7,8 @@
     "IM_URL": "https://appsgrycap.i3m.upv.es:31443/im",
     "TOSCA_TEMPLATES_DIR": "/opt/tosca-templates",
     "SUPPORT_EMAIL": "support@example.com",
-    "EXTERNAL_LINKS": [ { "url": "https://appsgrycap.i3m.upv.es:31443/im-web/", "menu_item_name": "IM web Portal" } ],
+    "EXTERNAL_LINKS": [ { "url": "https://appsgrycap.i3m.upv.es:31443/im-web/", "menu_item_name": "IM web Portal" },
+                        { "url": "https://imdocs.readthedocs.io/", "menu_item_name": "IM Docs" } ],
     "LOG_LEVEL": "info",
     "CRED_DB_URL": "sqlite:///creds.db"
 }

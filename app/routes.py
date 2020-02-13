@@ -94,7 +94,7 @@ def showvminfo(infid=None, vmid=None):
 
     vminfo = {}
     if not response.ok:
-        flash("Error retrieving VM info: \n" + response.text, 'warning')
+        flash("Error retrieving VM info: \n" + response.text, 'error')
     else:
         app.logger.debug("VM Info: %s" % response.text)
         vminfo = utils.format_json_radl(response.json()["radl"])
@@ -118,10 +118,15 @@ def managevm(op=None, infid=None, vmid=None):
         url = "%s/infrastructures/%s/vms/%s" % (settings.imUrl, infid, vmid)
         response = requests.delete(url, headers=headers)
 
-    if not response.ok:
+    if response.ok:
+        flash("Operation '%s' successfully made on VM ID: %s" % (op, vmid), 'info')
+    else:
         flash("Error making %s op on VM %s: \n%s" % (op, vmid, response.text), 'error')
 
-    return redirect(url_for('showvminfo', infid=infid, vmid=vmid))
+    if op == "terminate":
+        return redirect(url_for('showinfrastructures'))
+    else:
+        return redirect(url_for('showvminfo', infid=infid, vmid=vmid))
 
 @app.route('/infrastructures')
 @authorized_with_valid_token
@@ -157,6 +162,25 @@ def showinfrastructures():
     return render_template('infrastructures.html', infrastructures=infrastructures)
 
 
+@app.route('/reconfigure/<infid>')
+@authorized_with_valid_token
+def infreconfigure(infid=None):
+
+    access_token = oidc_blueprint.session.token['access_token']
+    auth_data = utils.getUserAuthData(access_token)
+    headers = {"Authorization": auth_data}
+
+    url = "%s/infrastructures/%s/reconfigure" % (settings.imUrl, infid)
+    response = requests.put(url, headers=headers)
+
+    if response.ok:
+        flash("Infrastructure successfuly reconfigured.", "info")
+    else:
+        flash("Error reconfiguring Infrastructure: \n" + response.text, "error")
+
+    return redirect(url_for('showinfrastructures'))
+
+
 @app.route('/template/<infid>')
 @authorized_with_valid_token
 def template(infid=None):
@@ -174,7 +198,7 @@ def template(infid=None):
     else:
         template = response.text
     return render_template('deptemplate.html', template=template)
-#
+
 
 @app.route('/log/<infid>')
 @authorized_with_valid_token
