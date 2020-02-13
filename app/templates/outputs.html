@@ -1,18 +1,27 @@
 {% extends "base.html" %}
+
 {% block content %}
 
-<div class="container-fluid">
+<div class="container">
   {% include 'flashed_messages.html' %}
     <br>
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h4 class="font-weight-bold text-primary">Infrastructure {{ infid }} outputs:</h4>
+          <div class="row">
+            <div class="col-md-6">
+              <!-- Title -->
+              <h4 class="font-weight-bold text-primary">Outputs</h4>
+            </div>
+            <div class="col-md-6 text-right">
+              <!-- Button -->
+              <button type=button class="btn btn-small btn-outline-secondary" onclick="history.back()"><span class="fas fa-arrow-left mr-2"></span> Back</button>
+            </div>
+          </div> <!-- / .row -->
         </div>
-        <div class="card-body">
 
-    <div class="table-responsive">
-        <table id="tableServices" class="table table-bordered table-striped" width="100%" cellspacing="0">
+        <div class="card-body">
+          <table id="tableServices" class="table table-bordered table-striped" width="100%" cellspacing="0">
             <thead>
                 <tr>
                     <th>Field Name</th>
@@ -28,9 +37,7 @@
               {% endfor %}
             </tbody>
         </table>
-    </div>
-    </div>
+        </div>
     </div>
 </div>
-
 {% endblock %}
