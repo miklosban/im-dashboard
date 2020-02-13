@@ -93,13 +93,44 @@ def showvminfo(infid=None, vmid=None):
     response = requests.get(url, headers=headers)
 
     vminfo = {}
+    state = ""
+    nets = ""
+    deployment = ""
     if not response.ok:
         flash("Error retrieving VM info: \n" + response.text, 'error')
     else:
         app.logger.debug("VM Info: %s" % response.text)
         vminfo = utils.format_json_radl(response.json()["radl"])
+        if "state" in vminfo:
+            state = vminfo["state"]
+            del vminfo["state"]
+        if "provider.type" in vminfo:
+            deployment = vminfo["provider.type"]
+            del vminfo["provider.type"]
+        if "provider.host" in vminfo:
+            if "provider.port" in vminfo:
+                deployment += ": %s:%s" % (vminfo["provider.host"], vminfo["provider.port"])
+                del vminfo["provider.port"]
+            else:
+                deployment += ": " + vminfo["provider.host"]
+            del vminfo["provider.host"]
 
-    return render_template('vminfo.html', infid=infid, vmid=vmid, vminfo=vminfo)
+        cont = 0
+        while "net_interface.%s.ip" % cont in vminfo:
+              nets += "Iface %s: %s\n" % (cont, vminfo["net_interface.%s.ip" % cont])
+              del vminfo["net_interface.%s.ip" % cont]
+              cont += 1
+
+        cont = 0
+        while "net_interface.%s.connection" % cont in vminfo:
+              del vminfo["net_interface.%s.connection" % cont]
+              cont += 1
+
+        for elem in vminfo:
+            if elem.endswith("size") and isinstance(vminfo[elem], int):
+                vminfo[elem] = "%d GB" % (vminfo[elem]/1073741824)
+
+    return render_template('vminfo.html', infid=infid, vmid=vmid, vminfo=vminfo, state=state, nets=nets, deployment=deployment)
 
 
 @app.route('/managevm/<op>/<infid>/<vmid>')

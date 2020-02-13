@@ -25,7 +25,45 @@
         </div>
 
         <div class="card-body">
-          <table id="tableServices" class="table table-bordered table-striped" width="100%" cellspacing="0">
+          <table id="tableMain" class="table table-bordered table-striped" width="100%" cellspacing="0">
+            <tbody>
+                <tr>
+                  <th>
+                    State:
+                  </th>
+                  <td>
+                    {% if state == "configured" %}
+                    <span class="badge badge-success"/>
+                    {% elif state in ["stopped", "off"] %}
+                    <span class="badge badge-warning text-white"/>
+                    {% elif state in ["failed", "unconfigured", "unknown"] %}
+                    <span class="badge badge-danger"/>
+                    {% else %}
+                    <span class="badge badge-warning text-white"><span class="spinner-grow spinner-grow-sm"></span>
+                    {% endif %}
+                    {{ state }}
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    Provider:
+                  </th>
+                  <td>
+                    {{ deployment }}
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    IPs:
+                  </th>
+                  <td>
+                    {{ nets }}
+                  </td>
+                </tr>
+            </tbody>
+        </table>
+
+          <table id="tableFields" class="table table-bordered table-striped" width="100%" cellspacing="0">
             <thead>
                 <tr>
                     <th>Field Name</th>
@@ -39,17 +77,6 @@
                     {{ field }}
                   </td>
                   <td>
-                    {% if field == "state" %}
-                      {% if value == "configured" %}
-                      <span class="badge badge-success"/>
-                      {% elif value in ["stopped", "off"] %}
-                      <span class="badge badge-warning text-white"/>
-                      {% elif value in ["failed", "unconfigured", "unknown"] %}
-                      <span class="badge badge-danger"/>
-                      {% else %}
-                      <span class="badge badge-warning text-white"><span class="spinner-grow spinner-grow-sm"></span>
-                      {% endif %}
-                    {% endif %}
                     {% if field == "disk.0.os.credentials.private_key" %}
                     <pre>{{ value }}</pre>
                     {% else %}
