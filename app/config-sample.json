@@ -3,12 +3,11 @@
     "OIDC_CLIENT_SECRET": "my_client_secret",
     "OIDC_BASE_URL": "https://aai-dev.egi.eu/oidc",
     "OIDC_GROUP_MEMBERSHIP": [  ],
-    "OID_SCOPES": "openid email profile offline_access",
-    "IM_URL": "https://appsgrycap.i3m.upv.es:31443/im-dev",
+    "OID_SCOPES": "openid email profile offline_access eduperson_entitlement",
+    "IM_URL": "https://appsgrycap.i3m.upv.es:31443/im",
     "TOSCA_TEMPLATES_DIR": "/opt/tosca-templates",
     "SUPPORT_EMAIL": "support@example.com",
-    "ENABLE_ADVANCED_MENU": "no",
-    "EXTERNAL_LINKS": [ { "url": "https://appsgrycap.i3m.upv.es:31443/im-web-dev/", "menu_item_name": "IM web Portal" } ],
+    "EXTERNAL_LINKS": [ { "url": "https://appsgrycap.i3m.upv.es:31443/im-web/", "menu_item_name": "IM web Portal" } ],
     "LOG_LEVEL": "info",
     "CRED_DB_URL": "sqlite:///creds.db"
 }
