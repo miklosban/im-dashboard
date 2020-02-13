@@ -99,8 +99,29 @@ def showvminfo(infid=None, vmid=None):
         app.logger.debug("VM Info: %s" % response.text)
         vminfo = utils.format_json_radl(response.json()["radl"])
 
-    return render_template('vminfo.html', vmid=vmid, vminfo=vminfo)
+    return render_template('vminfo.html', infid=infid, vmid=vmid, vminfo=vminfo)
 
+
+@app.route('/managevm/<op>/<infid>/<vmid>')
+@authorized_with_valid_token
+def managevm(op=None, infid=None, vmid=None):
+
+    access_token = oidc_blueprint.session.token['access_token']
+
+    auth_data = utils.getUserAuthData(access_token)
+    headers = {"Authorization": auth_data, "Accept": "application/json"}
+
+    if op in ["stop", "start", "reboot"]:
+        url = "%s/infrastructures/%s/vms/%s/%s" % (settings.imUrl, infid, vmid, op)
+        response = requests.put(url, headers=headers)
+    elif op == "terminate":
+        url = "%s/infrastructures/%s/vms/%s" % (settings.imUrl, infid, vmid)
+        response = requests.delete(url, headers=headers)
+
+    if not response.ok:
+        flash("Error making %s op on VM %s: \n%s" % (op, vmid, response.text), 'error')
+
+    return redirect(url_for('showvminfo', infid=infid, vmid=vmid))
 
 @app.route('/infrastructures')
 @authorized_with_valid_token
