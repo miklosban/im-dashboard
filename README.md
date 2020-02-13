@@ -1,23 +1,23 @@
-# orchestrator-dashboard
-INDIGO PaaS Orchestrator - Simple Graphical UI
+# im-dashboard
+Infrastructure Manager - Simple Graphical UI
 
 Functionalities:
-- IAM authentication
+- OIDC authentication
 - Display user's deployments
 - Display deployment details, template and log
 - Delete deployment
 - Create new deployment
 
-The orchestrator-dashboard is a Python application built with the [Flask](http://flask.pocoo.org/) microframework; [Flask-Dance](https://flask-dance.readthedocs.io/en/latest/) is used for Openid-Connect/OAuth2 integration.
+The im-dashboard is a Python application built with the [Flask](http://flask.pocoo.org/) microframework; [Flask-Dance](https://flask-dance.readthedocs.io/en/latest/) is used for Openid-Connect/OAuth2 integration.
 
 
 The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to serve the Flask Application.
 
 # How to deploy the dashboard
 
-Register a client in IAM with the following properties:
+Register a client in an OIDC server with the following properties:
 
-- redirect uri: `https://<DASHBOARD_HOST>:<PORT>/login/iam/authorized`
+- redirect uri: `https://<DASHBOARD_HOST>:<PORT>/login/oidc/authorized`
 - scopes: 'openid', 'email', 'profile', 'offline_access'
 - introspection endpoint enabled
 
@@ -25,15 +25,13 @@ Create the `config.json` file (see the [example](app/config-sample.json)) settin
 
 | Parameter name  | Description | Mandatory (Y/N) | Default Value 
 | -------------- | ------------- |------------- |------------- |
-| IAM_CLIENT_ID | IAM client ID | Y | N/A
-| IAM_CLIENT_SECRET | IAM client Secret | Y | N/A
-| IAM_BASE_URL | IAM service URL | Y | N/A
-| IAM_GROUP_MEMBERSHIP | List of IAM groups to be checked for allowing access | N | []
-| ORCHESTRATOR_URL | PaaS Orchestrator Service URL | Y | N/A
+| OIDC_CLIENT_ID | OIDC client ID | Y | N/A
+| OIDC_CLIENT_SECRET | OIDC client Secret | Y | N/A
+| OIDC_BASE_URL | OIDC service URL | Y | N/A
+| OIDC_GROUP_MEMBERSHIP | List of OIDC groups to be checked for allowing access | N | []
+| IM_URL | IM Service URL | Y | N/A
 | TOSCA_TEMPLATES_DIR | Absolute path where the TOSCA templates are stored | Y | N/A
-| SLAM_URL | SLAM service URL | Y for Orchestrator version < 2.2.0 | N/A
-| CMDB_URL | CMDB service URL | Y for Orchestrator version < 2.2.0 | N/A
-| IM_URL | Infrastructure Manager service URL | Y for Orchestrator version < 2.2.0 | N/A
+| IM_URL | Infrastructure Manager service URL | Y | N/A
 | SUPPORT_EMAIL | Email address that will be shown in case of errors | N | ""
 | ENABLE_ADVANCED_MENU | Toggle to enable/disable the advanced menu <br>Valid values: yes, no | N | no
 | EXTERNAL_LINKS | List of dictionaries ({ "url": "example.com" , "menu_item_name": "Example link"}) specifying links that will be shown under the "External Links" menu | N | []
@@ -44,7 +42,7 @@ Clone the tosca-templates repository to get a set of tosca templates that the da
 git clone https://github.com/indigo-dc/tosca-templates -b stable/v3.0
 ````
 
-You need to run the Orchestrator dashboard on HTTPS (otherwise you will get an error); you can choose between
+You need to run the IM dashboard on HTTPS (otherwise you will get an error); you can choose between
 - enabling the HTTPS support
 - using an HTTPS proxy
 
@@ -52,7 +50,7 @@ Details are provided in the next paragraphs.
 
 ## TOSCA Template Metadata 
 
-The Orchestrator dashboard can exploit some optional information provided in the TOSCA templates for rendering the cards describing the type of applications/services or virtual infrastructure that a user can deploy.
+The IM dashboard can exploit some optional information provided in the TOSCA templates for rendering the cards describing the type of applications/services or virtual infrastructure that a user can deploy.
 
 
 In particular, the following tags are supported:
@@ -93,13 +91,13 @@ You would need to provide
 
 Run the docker container:
 ```
-docker run -d -p 443:5001 --name='orchestrator-dashboard' \
+docker run -d -p 443:5001 --name='im-dashboard' \
            -e ENABLE_HTTPS=True \
            -v $PWD/cert.pem:/certs/cert.pem \
            -v $PWD/key.pem:/certs/key.pem \
            -v $PWD/config.json:/app/app/config.json \
            -v $PWD/tosca-templates:/opt/tosca-templates \
-           indigodatacloud/orchestrator-dashboard:latest
+           grycap/im-dashboard:latest
 ```
 Access the dashboard at `https://<DASHBOARD_HOST>/`
 
@@ -142,12 +140,12 @@ server {
 Run the docker container:
 
 ```
-docker run -d -p 5001:5001 --name='orchestrator-dashboard' \
+docker run -d -p 5001:5001 --name='im-dashboard' \
            -v $PWD/config.json:/app/app/config.json \
            -v $PWD/tosca-templates:/opt/tosca-templates \
-           indigodatacloud/orchestrator-dashboard:latest
+           grycap/im-dashboard:latest
 ```
-:warning: Remember to update the redirect uri in the IAM client to `https://<PROXY_HOST>/login/iam/authorized`
+:warning: Remember to update the redirect uri in the OIDC client to `https://<PROXY_HOST>/login/oidc/authorized`
 
 Access the dashboard at `https://<PROXY_HOST>/`
 
@@ -156,27 +154,3 @@ Access the dashboard at `https://<PROXY_HOST>/`
 You can change the number of gunicorn worker processes using the environment variable WORKERS.
 E.g. if you want to use 2 workers, launch the container with the option `-e WORKERS=2`
 Check the [documentation](http://docs.gunicorn.org/en/stable/design.html#how-many-workers) for ideas on tuning this parameter.
-
-## How to build the docker image
-
-```
-git clone https://github.com/indigo-dc/orchestrator-dashboard.git
-cd orchestrator-dashboard
-docker build -f docker/Dockerfile -t orchestrator-dashboard .
-```
-
-## How to setup a development environment
-
-```
-git clone https://github.com/indigo-dc/orchestrator-dashboard.git
-cd orchestrator-dashboard
-python3 -m venv venv
-source venv/bin/activate
-pip3 install -r requirements.txt
-```
-
-Start the dashboard app:
-```
-FLASK_app=orchdashboard flask run --host=0.0.0.0 --cert cert.pem --key privkey.pem --port 443
-```
-

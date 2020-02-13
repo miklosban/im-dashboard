@@ -1,8 +1,43 @@
-import json, yaml, requests, os, io, ast
+import json, yaml, requests, os, io, ast, time
+from app import appdb
 from fnmatch import fnmatch
 from hashlib import md5
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
+SITE_LIST = {}
+LAST_UPDATE = 0
+CACHE_DELAY = 3600
+
+def getUserAuthData(access_token):
+    global SITE_LIST
+    global LAST_UPDATE
+    global CACHE_DELAY
+
+    res = "type = InfrastructureManager; token = %s" % access_token
+    now = int(time.time())
+    if now - LAST_UPDATE > CACHE_DELAY:
+        LAST_UPDATE = now
+        SITE_LIST = appdb.get_sites()
+
+    if not SITE_LIST:
+        flash("Error retrieving VM info: \n" + response.text, 'warning')
+
+    for site_name, (site_url, _) in SITE_LIST.items():
+        res += "\\nid = in2p3ost; type = OpenStack; username = egi.eu; tenant = openid; auth_version = 3.x_oidc_access_token;"
+        res += " host = %s; password = '%s'" % (site_url, access_token)
+    return res
+
+def format_json_radl(vminfo):
+    res = {}
+    for elem in vminfo:
+        if elem["class"] == "system":
+            for field, value in elem.items():
+                if field not in ["class", "id"]:
+                    if field.endswith("_min"):
+                        field = field[:-4]
+                    res[field] = value
+    return res
 
 def to_pretty_json(value):
     return json.dumps(value, sort_keys=True,
@@ -13,25 +48,11 @@ def avatar(email, size):
   return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(digest, size)
 
 
-def getOrchestratorVersion(orchestrator_url):
-    url = orchestrator_url +  "/info"
+def getIMVersion(im_url):
+    url = im_url +  "/version"
     response = requests.get(url)
+    return response.text
 
-    return response.json()['build']['version']
-
-
-def getOrchestratorConfiguration(orchestrator_url, access_token):
-    
-    headers = {'Authorization': 'bearer %s' % (access_token)}
-
-    url = orchestrator_url +  "/configuration"
-    response = requests.get(url, headers=headers)
-
-    configuration = {}
-    if response.ok:
-        configuration = response.json()
-
-    return configuration
 
 def loadToscaTemplates(directory):
 
@@ -98,18 +119,18 @@ def extractToscaInfo(toscaDir, tosca_pars_dir, toscaTemplates):
 
     return toscaInfo
 
-def exchange_token_with_audience(iam_url, client_id, client_secret, iam_token, audience):
+def exchange_token_with_audience(oidc_url, client_id, client_secret, oidc_token, audience):
 
-    payload_string = '{ "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange", "audience": "'+audience+'", "subject_token": "'+iam_token+'", "scope": "openid profile" }'
+    payload_string = '{ "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange", "audience": "'+audience+'", "subject_token": "'+oidc_token+'", "scope": "openid profile" }'
     
     # Convert string payload to dictionary
     payload =  ast.literal_eval(payload_string)
     
-    iam_response = requests.post(iam_url + "/token", data=payload, auth=(client_id, client_secret), verify=False)
+    oidc_response = requests.post(oidc_url + "/token", data=payload, auth=(client_id, client_secret), verify=False)
     
-    if not iam_response.ok:
-        raise Exception("Error exchanging token: {} - {}".format(iam_response.status_code, iam_response.text) )
+    if not oidc_response.ok:
+        raise Exception("Error exchanging token: {} - {}".format(oidc_response.status_code, oidc_response.text) )
     
-    deserialized_iam_response = json.loads(iam_response.text)
+    deserialized_oidc_response = json.loads(oidc_response.text)
     
-    return deserialized_iam_response['access_token']
+    return deserialized_oidc_response['access_token']

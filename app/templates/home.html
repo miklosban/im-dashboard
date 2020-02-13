@@ -10,16 +10,17 @@
 
 <div class = "jumbotron jumbotron-fluid">
   <div class="container">
+    {% include 'flashed_messages.html' %}
     <div class="row">
      <div class="col-lg-7">
      <h1 class="display-3">Welcome!</h1>
-     <p>This is the PaaS Orchestrator Dashboard.</p>
+     <p>This is the Infrastructure Manager Dashboard.</p>
      <p>
-        <a class="btn btn-primary btn-lg" role="button" href="{{ url_for("iam.login") }}">Login with IAM &raquo;</a>
+        <a class="btn btn-primary btn-lg" role="button" href="{{ url_for("oidc.login") }}">Login with OIDC &raquo;</a>
      </p>
      </div>
      <div class="col-lg-5">
-	<img src="static/images/orchestrator-logo.png"></img>
+	<img src="static/images/im-logo.png"></img>
      </div>
   </div>
 </div>

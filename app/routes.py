@@ -1,11 +1,11 @@
-from app import app, iam_blueprint, sla as sla, settings, utils, vault
+from app import app, oidc_blueprint, settings, utils, appdb, cred
 from werkzeug.exceptions import Forbidden
 from flask import json, render_template, request, redirect, url_for, flash, session, Markup
 import requests, json
 import yaml
 import io, os, sys
 from functools import wraps
-from packaging import version
+from urllib.parse import urlparse
 
 app.jinja_env.filters['tojson_pretty'] = utils.to_pretty_json
 
@@ -13,35 +13,23 @@ toscaTemplates = utils.loadToscaTemplates(settings.toscaDir)
 toscaInfo = utils.extractToscaInfo(settings.toscaDir,settings.toscaParamsDir,toscaTemplates)
 
 app.logger.debug("TOSCA INFO: " + json.dumps(toscaInfo))
-app.logger.debug("EXTERNAL_LINKS: " + json.dumps(settings.external_links) )
-app.logger.debug("ENABLE_ADVANCED_MENU: " + str(settings.enable_advanced_menu) )
+
 
 @app.before_request
 def before_request_checks():
     if 'external_links' not in session:
        session['external_links'] = settings.external_links
-    if 'enable_advanced_menu' not in session:
-       session['enable_advanced_menu'] = settings.enable_advanced_menu
-
-def validate_configuration():
-   if not settings.orchestratorConf.get('im_url'):
-       app.logger.debug("Trying to (re)load config from Orchestrator: " + json.dumps(settings.orchestratorConf))
-       access_token = iam_blueprint.session.token['access_token']
-       configuration = utils.getOrchestratorConfiguration(settings.orchestratorUrl, access_token)
-       settings.orchestratorConf = configuration
 
 def authorized_with_valid_token(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
 
-        if not iam_blueprint.session.authorized or 'username' not in session:
-           return redirect(url_for('login'))
+        if not oidc_blueprint.session.authorized or 'username' not in session:
+            return redirect(url_for('login'))
 
-        if iam_blueprint.session.token['expires_in'] < 20:
+        if oidc_blueprint.session.token['expires_in'] < 20:
             app.logger.debug("Force refresh token")
-            iam_blueprint.session.get('/userinfo')
-
-        validate_configuration()
+            oidc_blueprint.session.get('/userinfo')
 
         return f(*args, **kwargs)
 
@@ -50,166 +38,227 @@ def authorized_with_valid_token(f):
 @app.route('/settings')
 @authorized_with_valid_token
 def show_settings():
-    return render_template('settings.html', iam_url=settings.iamUrl, orchestrator_url=settings.orchestratorUrl, orchestrator_conf=settings.orchestratorConf)
+    return render_template('settings.html', oidc_url=settings.oidcUrl, im_url=settings.imUrl)
 
 @app.route('/login')
 def login():
     session.clear()
     return render_template('home.html')
 
-@app.route('/slas')
-@authorized_with_valid_token
-def getslas():
-
-  slas={}
-
-  try:
-    access_token = iam_blueprint.session.token['access_token']
-    slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cmdb_url'])
-
-  except Exception as e:
-        flash("Error retrieving SLAs list: \n" + str(e), 'warning')
-
-  return render_template('sla.html', slas=slas)
-
-
 @app.route('/')
 def home():
-    if not iam_blueprint.session.authorized:
+    if not oidc_blueprint.session.authorized:
         return redirect(url_for('login'))
-    
-    account_info = iam_blueprint.session.get("/userinfo")
+
+    account_info = oidc_blueprint.session.get(urlparse(settings.oidcUrl)[2] + "/userinfo")
 
     if account_info.ok:
         account_info_json = account_info.json()
 
-        if settings.iamGroups:
-            user_groups = account_info_json['groups']
-            if not set(settings.iamGroups).issubset(user_groups):
+        if settings.oidcGroups:
+            user_groups = []
+            if 'groups' in account_info_json:
+                user_groups = account_info_json['groups']
+            elif 'eduperson_entitlement' in account_info_json:
+                user_groups = account_info_json['eduperson_entitlement']
+            if not set(settings.oidcGroups).issubset(user_groups):
                 app.logger.debug("No match on group membership. User group membership: " + json.dumps(user_groups))
-                message = Markup('You need to be a member of the following IAM groups: {0}. <br> Please, visit <a href="{1}">{1}</a> and apply for the requested membership.'.format(json.dumps(settings.iamGroups), settings.iamUrl))
+                message = Markup('You need to be a member of the following groups: {0}. <br> Please, visit <a href="{1}">{1}</a> and apply for the requested membership.'.format(json.dumps(settings.oidcGroups), settings.oidcUrl))
                 raise Forbidden(description=message)
-            
+
+        session['userid'] = account_info_json['sub']
         session['username'] = account_info_json['name']
-        session['gravatar'] = utils.avatar(account_info_json['email'], 26)
-        session['organisation_name'] = account_info_json['organisation_name']
-        access_token = iam_blueprint.token['access_token']
+        if 'email' in account_info_json:
+            session['gravatar'] = utils.avatar(account_info_json['email'], 26)
+        else:
+            session['gravatar'] = utils.avatar(account_info_json['sub'], 26)
+        access_token = oidc_blueprint.token['access_token']
 
         return render_template('portfolio.html', templates=toscaInfo)
-
-
-@app.route('/deployments')
-@authorized_with_valid_token
-def showdeployments():
-
-    access_token = iam_blueprint.session.token['access_token']
-
-    headers = {'Authorization': 'bearer %s' % (access_token)}
-
-    url = settings.orchestratorUrl +  "/deployments?createdBy=me&page=0&size=9999"
-    response = requests.get(url, headers=headers)
-
-    deployments = {}
-    if not response.ok:
-        flash("Error retrieving deployment list: \n" + response.text, 'warning')
     else:
-        deployments = response.json()["content"]
-        app.logger.debug("Deployments: " + str(deployments))
-    return render_template('deployments.html', deployments=deployments)
+        flash("Error getting User info: \n" + account_info.text, 'error')
+        return render_template('home.html')
 
 
-
-@app.route('/template/<depid>')
+@app.route('/vminfo/<infid>/<vmid>')
 @authorized_with_valid_token
-def deptemplate(depid=None):
+def showvminfo(infid=None, vmid=None):
 
-    access_token = iam_blueprint.session.token['access_token']
-    headers = {'Authorization': 'bearer %s' % (access_token)}
+    access_token = oidc_blueprint.session.token['access_token']
 
-    url = settings.orchestratorUrl + "/deployments/" + depid + "/template"
+    auth_data = utils.getUserAuthData(access_token)
+    headers = {"Authorization": auth_data, "Accept": "application/json"}
+
+    url = "%s/infrastructures/%s/vms/%s" % (settings.imUrl, infid, vmid)
+    response = requests.get(url, headers=headers)
+
+    vminfo = {}
+    if not response.ok:
+        flash("Error retrieving VM info: \n" + response.text, 'warning')
+    else:
+        app.logger.debug("VM Info: %s" % response.text)
+        vminfo = utils.format_json_radl(response.json()["radl"])
+
+    return render_template('vminfo.html', vmid=vmid, vminfo=vminfo)
+
+
+@app.route('/infrastructures')
+@authorized_with_valid_token
+def showinfrastructures():
+
+    access_token = oidc_blueprint.session.token['access_token']
+
+    auth_data = utils.getUserAuthData(access_token)
+    headers = {"Authorization": auth_data, "Accept": "application/json"}
+
+    url = "%s/infrastructures" % settings.imUrl
+    response = requests.get(url, headers=headers)
+
+    infrastructures = {}
+    if not response.ok:
+        flash("Error retrieving infrastructure list: \n" + response.text, 'error')
+    else:
+        app.logger.debug("Infrastructures: %s" % response.text)
+        state_res = response.json()
+        if "uri-list" in state_res:
+            inf_id_list = [elem["uri"] for elem in state_res["uri-list"]]
+        else:
+            inf_id_list = []
+        for inf_id in inf_id_list:
+            url = "%s/state" % inf_id
+            response = requests.get(url, headers=headers)
+            if not response.ok:
+                flash("Error retrieving infrastructure %s state: \n%s" % (inf_id, response.text), 'error')
+            else:
+                inf_state = response.json()
+                infrastructures[os.path.basename(inf_id)] = inf_state['state']
+
+    return render_template('infrastructures.html', infrastructures=infrastructures)
+
+
+@app.route('/template/<infid>')
+@authorized_with_valid_token
+def template(infid=None):
+
+    access_token = oidc_blueprint.session.token['access_token']
+    auth_data = utils.getUserAuthData(access_token)
+    headers = {"Authorization": auth_data}
+
+    url = "%s/infrastructures/%s/tosca" % (settings.imUrl, infid)
     response = requests.get(url, headers=headers)
 
     if not response.ok:
-      flash("Error getting template: " + response.text)
-      return redirect(url_for('home'))
-
-    template = response.text
+        flash("Error getting template: \n" + response.text, "error")
+        template = ""
+    else:
+        template = response.text
     return render_template('deptemplate.html', template=template)
 #
 
-@app.route('/log/<physicalId>')
+@app.route('/log/<infid>')
 @authorized_with_valid_token
-def deplog(physicalId=None):
+def inflog(infid=None):
 
-    access_token = iam_blueprint.session.token['access_token']
-    headers = {'Authorization': 'id = im; type = InfrastructureManager; token = %s;' % (access_token)}
+    access_token = oidc_blueprint.session.token['access_token']
+    auth_data = utils.getUserAuthData(access_token)
+    headers = {"Authorization": auth_data}
 
-    app.logger.debug("Configuration: " + json.dumps(settings.orchestratorConf))
-
-    url = settings.orchestratorConf['im_url'] + "/infrastructures/" + physicalId + "/contmsg"
+    url = "%s/infrastructures/%s/contmsg" % (settings.imUrl, infid)
     response = requests.get(url, headers=headers, verify=False)
 
     if not response.ok:
       log="Not found"
     else:
       log = response.text
-    return render_template('deplog.html', log=log)
+    return render_template('inflog.html', log=log)
 
 
-@app.route('/delete/<depid>')
+@app.route('/delete/<infid>')
 @authorized_with_valid_token
-def depdel(depid=None):
+def infdel(infid=None):
 
-    access_token = iam_blueprint.session.token['access_token']
-    headers = {'Authorization': 'bearer %s' % (access_token)}
-    url = settings.orchestratorUrl + "/deployments/" + depid
+    access_token = oidc_blueprint.session.token['access_token']
+    auth_data = utils.getUserAuthData(access_token)
+    headers = {"Authorization": auth_data}
+
+    url = "%s/infrastructures/%s" % (settings.imUrl, infid)
     response = requests.delete(url, headers=headers)
-       
-    if not response.ok:
-        flash("Error deleting deployment: " + response.text);
-  
-    return redirect(url_for('showdeployments'))
 
+    if not response.ok:
+        flash("Error deleting infrastructure: " + response.text, "error");
+
+    return redirect(url_for('showinfrastructures'))
 
 @app.route('/configure')
 @authorized_with_valid_token
 def configure():
 
-    access_token = iam_blueprint.session.token['access_token']
+    access_token = oidc_blueprint.session.token['access_token']
 
     selected_tosca = request.args['selected_tosca']
 
-    slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cmdb_url'])
-
     app.logger.debug("Template: " + json.dumps(toscaInfo[selected_tosca]))
+
+    vos = appdb.get_vo_list()
 
     return render_template('createdep.html',
                            template=toscaInfo[selected_tosca],
                            selectedTemplate=selected_tosca,
-                           slas=slas)
+                           vos=vos)
 
+@app.route('/sites/<vo>')
+def getsites(vo=None):
+    res = ""
+    for site_name, (site_url, site_state) in appdb.get_sites(vo).items():
+        res += '<option name="selectedSite" value=%s>%s</option>' % (site_name, site_name)
+    return res
 
-def add_sla_to_template(template, sla_id):
-    # Add the placement policy
+@app.route('/images/<site>/<vo>')
+def getimages(site=None, vo=None):
+    res = ""
+    for image in appdb.get_images(site, vo):
+        res += '<option name="selectedImage" value=%s>%s</option>' % (image, image)
+    return res
 
-    if version.parse(utils.getOrchestratorVersion(settings.orchestratorUrl).split('-')[0]) >= version.parse("2.2.0"):
-        toscaSlaPlacementType = "tosca.policies.indigo.SlaPlacement"
-    else:
-        toscaSlaPlacementType = "tosca.policies.Placement"
+def add_image_to_template(template, image):
+    # Add the image to all compute nodes
 
-    template['topology_template']['policies'] = [
-           {"deploy_on_specific_site": { "type": toscaSlaPlacementType, "properties": {"sla_id": sla_id}}}]
+    for node in list(template['topology_template']['node_templates'].values()):
+        if node["type"] == "tosca.nodes.indigo.Compute":
+            node["capabilities"]["os"]["properties"]["image"] = image
 
     app.logger.debug(yaml.dump(template, default_flow_style=False))
 
     return template
+
+def set_inputs_to_template(template, inputs):
+    # Add the image to all compute nodes
+
+    for name, value in template['topology_template']['inputs'].items():
+        if name in inputs:
+            if value["type"] == "integer":
+                value["default"] = int(inputs[name])
+            elif value["type"] == "float":
+                value["default"] = float(inputs[name])
+            elif value["type"] == "boolean":
+                if inputs[name].lower() in ['yes', 'true', '1']:
+                    value["default"] = True
+                else:
+                    value["default"] = False
+            else:
+                value["default"] = inputs[name]
+
+    app.logger.debug(yaml.dump(template, default_flow_style=False))
+
+    return template
+
 #        
 # 
 @app.route('/submit', methods=['POST'])
 @authorized_with_valid_token
 def createdep():
 
-  access_token = iam_blueprint.session.token['access_token']
+  access_token = oidc_blueprint.session.token['access_token']
 
   app.logger.debug("Form data: " + json.dumps(request.form.to_dict()))
 
@@ -217,120 +266,87 @@ def createdep():
       template = yaml.full_load(stream)
 
       form_data = request.form.to_dict()
-     
-      params={}
-      if 'extra_opts.keepLastAttempt' in form_data:
-         params['keepLastAttempt'] = 'true'
-      else:
-         params['keepLastAttempt'] = 'false'
 
       if form_data['extra_opts.schedtype'] == "man":
-          template = add_sla_to_template(template, form_data['extra_opts.selectedSLA'])
-
-      if 'extra_opts.providerTimeoutSet' in form_data:
-          params['providerTimeoutMins'] = form_data['extra_opts.providerTimeout']
+          image = "appdb://%s/%s?%s" % (form_data['extra_opts.selectedSite'],
+                                        form_data['extra_opts.selectedImage'],
+                                        form_data['extra_opts.selectedVO'])
+          template = add_image_to_template(template, image)
 
       inputs = { k:v for (k,v) in form_data.items() if not k.startswith("extra_opts.") }
 
       app.logger.debug("Parameters: " + json.dumps(inputs))
 
-      payload = { "template" : yaml.dump(template,default_flow_style=False, sort_keys=False), "parameters": inputs }
-      # set additional params
-      payload.update(params)
+      template = set_inputs_to_template(template, inputs)
 
+      payload = yaml.dump(template,default_flow_style=False, sort_keys=False)
 
-  url = settings.orchestratorUrl +  "/deployments/"
-  headers = {'Content-Type': 'application/json', 'Authorization': 'bearer %s' % (access_token)}
-  response = requests.post(url, json=payload, headers=headers)
+  auth_data = utils.getUserAuthData(access_token)
+  headers = {"Authorization": auth_data, "Content-Type": "text/yaml"}
+
+  url = "%s/infrastructures" % settings.imUrl
+  response = requests.post(url, headers=headers, data=payload)
 
   if not response.ok:
-     flash("Error submitting deployment: \n" + response.text)
+     flash("Error creating infrastrucrure: \n" + response.text, "error")
 
-  return redirect(url_for('showdeployments'))
- 
+  return redirect(url_for('showinfrastructures'))
+
 @app.route('/manage_creds')
 @authorized_with_valid_token
 def manage_creds():
-  slas={}
+  sites={}
 
   try:
-    access_token = iam_blueprint.session.token['access_token']
-    slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cmdb_url'])
-
+    sites = appdb.get_sites()
   except Exception as e:
-        flash("Error retrieving SLAs list: \n" + str(e), 'warning')
+    flash("Error retrieving sites list: \n" + str(e), 'warning')
 
-  return render_template('service_creds.html', slas=slas)
+  return render_template('service_creds.html', sites=sites)
 
 
-
-@app.route('/read_secret_from_vault')
+@app.route('/write_creds', methods=['GET', 'POST'])
 @authorized_with_valid_token
-def read_secret_from_vault():
-    
-    serviceid = request.args.get('service_id',None)
-    servicetype = request.args.get('service_type',None)
-
-    access_token = iam_blueprint.session.token['access_token']
-    jwt_token=utils.exchange_token_with_audience(settings.iamUrl, app.config['IAM_CLIENT_ID'], app.config['IAM_CLIENT_SECRET'],access_token,settings.vault_audience)
-    vault_client = vault.VaultClient(settings.orchestratorConf['vault_url'],jwt_token,settings.vault_role)
-    path = "services_credential/" + serviceid
-    secret = vault_client.read_service_creds( path )
-
-    if secret:
-        secret = secret.get('data')
-
-    return render_template('modal_creds.html', mode="filled-form", service_creds=secret, service_type=servicetype)
-
-
-@app.route('/write_secret_to_vault', methods=['GET', 'POST'])
-@authorized_with_valid_token
-def write_secret_to_vault():
-
+def write_creds():
     serviceid = request.args.get('service_id',"")
-    servicetype = request.args.get('service_type',"")
-
     app.logger.debug("service_id={}".format(serviceid))
 
     if request.method == 'GET':
-       return render_template('modal_creds.html', mode="empty-form", service_creds=None, service_type=servicetype, service_id=serviceid)
-    else:    
+      res = {}
+      try:
+          res = cred.get_cred(serviceid)
+      except Exception as ex:
+          flash("Error reading credentials %s!" % ex, 'error')
 
+      return render_template('modal_creds.html', service_creds=res, service_id=serviceid)
+    else:    
        app.logger.debug("Form data: " + json.dumps(request.form.to_dict()))
 
        creds = request.form.to_dict()
-
-       access_token = iam_blueprint.session.token['access_token']
-   
-       jwt_token=utils.exchange_token_with_audience(settings.iamUrl, app.config['IAM_CLIENT_ID'], app.config['IAM_CLIENT_SECRET'],access_token,settings.vault_audience)
-       vault_client = vault.VaultClient(settings.orchestratorConf['vault_url'],jwt_token,settings.vault_role)
-       path = "services_credential/" + serviceid
-       secret = vault_client.write_service_creds( path, creds )
-
-       flash("Credentials successfully written!", 'info')
+       try:
+           cred.write_creds(serviceid, creds)
+           flash("Credentials successfully written!", 'info')
+       except Exception as ex:
+           flash("Error writing credentials %s!" % ex, 'error')
 
        return redirect(url_for('manage_creds'))
 
-@app.route('/delete_secret_from_vault')
+
+@app.route('/delete_creds')
 @authorized_with_valid_token
-def delete_secret_from_vault():
+def delete_creds():
 
     serviceid = request.args.get('service_id',"")
-    servicetype = request.args.get('service_type',"")
-
-    access_token = iam_blueprint.session.token['access_token']
-
-    jwt_token=utils.exchange_token_with_audience(settings.iamUrl, app.config['IAM_CLIENT_ID'], app.config['IAM_CLIENT_SECRET'],access_token,settings.vault_audience)
-    vault_client = vault.VaultClient(settings.orchestratorConf['vault_url'],jwt_token,settings.vault_role)
-    path = "services_credential/" + serviceid
-    vault_client.delete_service_creds(path)
-
-    flash("Credentials successfully deleted!", 'info')
+    try:
+        cred.delete_cred(serviceid)
+        flash("Credentials successfully deleted!", 'info')
+    except Exception as ex:
+        flash("Error deleting credentials %s!" % ex, 'error')
     
     return redirect(url_for('manage_creds'))
 
 @app.route('/logout')
 def logout():
    session.clear()
-   iam_blueprint.session.get("/logout")
+   oidc_blueprint.session.get("/logout")
    return redirect(url_for('login'))

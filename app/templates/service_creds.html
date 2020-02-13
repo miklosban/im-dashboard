@@ -30,18 +30,15 @@
                 </tr>
             </thead>
             <tbody>
-                {% for sla in slas %}
-		{% if sla.iam_enabled != True %}
+                {% for site_name, (site_url, site_status) in sites.items() %}
                 <tr>
-	            <td>{{sla.sitename}}</td>
-	            <td>{{sla.endpoint}}</td>
-		    <td>
-			    <button type="button" id="readBtn" data-id="{{sla.service_id}}" class="btn btn-small btn-info readBtn" data-toggle="modal" data-target="#newModal" data-whatever="{{sla.service_type}}">GET</button>
-			    <button type=button id="updateBtn" data-id="{{sla.service_id}}" class="btn btn-small btn-success" data-toggle="modal" data-target="#newModal" data-whatever="{{sla.service_type}}">SET</button>
-			    <button type=button id="deleteBtn" data-id="{{sla.service_id}}" class="btn btn-small btn-danger" data-toggle="modal" data-target="#deleteModal" data-whatever="{{sla.service_type}}" data-backdrop="static" data-keyboard="false">DELETE</button>
+	            <td>{{site_name}}</td>
+	            <td>{{site_url}}</td>
+		          <td>
+                <button type=button id="updateBtn" data-id="{{site_name}}" class="btn btn-small btn-success" data-toggle="modal" data-target="#newModal">EDIT</button>
+                <button type=button id="deleteBtn" data-id="{{site_name}}" class="btn btn-small btn-danger" data-toggle="modal" data-target="#deleteModal" data-backdrop="static" data-keyboard="false">DELETE</button>
 	            </td>
                 </tr>
-		{% endif %}
                 {% endfor %}
             </tbody>
         </table>
@@ -56,7 +53,8 @@
               <div class="modal-body">
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                <a class="btn btn-primary cancelBtn" role="button" data-dismiss="modal">Cancel</a>
+                <a class="btn btn-success updateBtn" role="button" href="">Update</a>
               </div>
             </div>
           </div>
@@ -108,20 +106,26 @@ $(document).ready(function () {
   $('#newModal').on('show.bs.modal', function (event) {
      var button = $(event.relatedTarget) // Button that triggered the modal
      var service_id = button.data('id')
-     var service_type = button.data('whatever').split(" ",1)[0]	  
      var modal = $(this)
-     if ( event.relatedTarget.id == "readBtn") {
-	 modal.find('.modal-body').html('Loading...').load("{{url_for('read_secret_from_vault')}}" + "?service_id=" + service_id + "&service_type=" + service_type);
-     }	  
-     if ( event.relatedTarget.id == "updateBtn") {
-        modal.find('.modal-body').html('Loading...').load("{{url_for('write_secret_to_vault')}}" + "?service_id=" + service_id + "&service_type=" + service_type);
-     }	     
+     modal.find('.modal-body').html('Loading...').load("{{url_for('write_creds')}}?service_id=" + service_id);
+     modal.find(".updateBtn")[0].setAttribute("href", "#");
+     modal.find(".updateBtn")[0].setAttribute("onclick", "document.getElementById('credForm').submit();");
   });
 });
 
 </script>
 
 <script>
+$(document).ready(function () {
+    $(".updateBtn").click(function () {
+        // add spinner to button
+        $(this).parent().find(".cancelBtn").addClass("disabled", true);
+        $(this).addClass("disabled", true);
+        $(this).html( `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...` );
+    });
+});
+
+
 $(document).ready(function () {
     $(".deleteBtn").click(function () {
         // add spinner to button
@@ -135,9 +139,8 @@ $(document).ready(function () {
   $('#deleteModal').on('show.bs.modal', function (event) {
      var button = $(event.relatedTarget) // Button that triggered the modal
      var service_id = button.data('id')
-     var service_type = button.data('whatever').split(" ",1)[0]
      var modal = $(this)
-     modal.find(".deleteBtn")[0].setAttribute("href", "{{url_for('delete_secret_from_vault')}}?service_id="+service_id+"&service_type="+service_type);
+     modal.find(".deleteBtn")[0].setAttribute("href", "{{url_for('delete_creds')}}?service_id="+service_id);
   });
 });
 </script>

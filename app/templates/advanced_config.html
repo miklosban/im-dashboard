@@ -1,24 +1,6 @@
-<div class="form-group">
-<div class="form-check form-check-inline">
-     <input type="checkbox" class="form-check-input" id="providerTimeoutSet" name="extra_opts.providerTimeoutSet">
-     <label class="form-check-label" style="white-space: nowrap;" for="providerTimeout">Set deployment creation timeout (min)  </label>
-     <input type="number" class="form-control" id="providerTimeout" name="extra_opts.providerTimeout" style="width: 4em; height: 30px" min="5" value="" disabled>
- </div>    
-     <small id="providerTimeoutHelp" class="form-text text-muted">Supported only for <strong>managed</strong> long-running service deployments</small>
-</div>
 
- <div class="form-check">
-     <input type="checkbox" class="form-check-input" id="keepLastAttempt" name="extra_opts.keepLastAttempt">
-     <label class="form-check-label" for="keepLastAttempt">Do not delete the deployment in case of failure</label>
- </div>
-
- <hr>
- <!-- div class="form-check">
-    <input type="checkbox" class="form-check-input" id="sendEmailFeedback" name="extra_opts.sendEmailFeedback" checked="checked">
-    <label class="form-check-label" for="sendEmailFeedback">Send a confirmation email when complete</label>
- </div -->
- <br>
- <div id="confScheduling" {% if session['enable_advanced_menu'] == "no" %}hidden{% endif %}>
+<br>
+ <div id="confScheduling">
    <div class="form-group">
        <h5>Configure scheduling:</h5>
        <label class="radio-inline">
@@ -29,14 +11,57 @@
        </label>
    </div>
 
+   <script>
+
+    function loadSites() {
+        $('#selectedSite').empty();
+        $('#selectedSite').append("<option value=''>Loading Sites ...</option>");
+        $.ajax({
+            method: "GET",
+            url: "/sites/" + $('#selectedVO').val(),
+            success : function(text)
+            {
+                $('#selectedSite').empty();
+                $('#selectedSite').append("<option value=''> - Select one site - </option>");
+                $('#selectedSite').append(text);
+            }
+        });
+    }
+
+    function loadImages() {
+        $('#selectedImage').empty();
+        $('#selectedImage').append("<option value=''>Loading Images ...</option>");
+        $.ajax({
+            method: "GET",
+            url: "/images/" + $("#selectedSite").val() + "/" + $('#selectedVO').val(),
+            success : function(text)
+            {
+                $('#selectedImage').empty();
+                $('#selectedImage').append("<option value=''> - Select one image - </option>");
+                $('#selectedImage').append(text);
+            }
+        });
+    }
+    </script>
+
    <div id="manschedConf" class="form-group">
        <p></p>
-       <label>Select a provider:</label>
-       <select class="js-example-basic-single js-states form-control" id="selectSLA" name="extra_opts.selectedSLA">
-       {% for sla in slas %}
-           <option name="selectedSLA" value={{sla.id}}>{{sla.sitename}}: {{sla.service_type}}</option>
+       <label>Select a VO:</label>
+       <select class="js-example-basic-single js-states form-control" id="selectedVO" name="extra_opts.selectedVO" onchange="loadSites()">
+         <option name="selectedImage" value=""> - Select one VO - </option>
+       {% for vo in vos %}
+           <option name="selectedVO" value={{vo}}>{{vo}}</option>
        {% endfor %}
        </select>
+       <label>Select a provider:</label>
+       <select class="js-example-basic-single js-states form-control" id="selectedSite" name="extra_opts.selectedSite" onchange="loadImages()">
+        <option name="selectedImage" value="">Select a VO</option>
+       </select>
+       <label>Select a image:</label>
+       <select class="js-example-basic-single js-states form-control" id="selectedImage" name="extra_opts.selectedImage">
+            <option name="selectedImage" value="">Select a provider</option>
+        </select>
    </div>
-   <hr>
+   <br>
+
  </div>

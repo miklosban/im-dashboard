@@ -5,7 +5,7 @@ import logging
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app)
-app.secret_key="30bb7cf2-1fef-4d26-83f0-8096b6dcc7a3"
+app.secret_key="8210f566-4981-11ea-92d1-f079596e599b"
 app.config.from_json('config.json')
 
 loglevel = app.config.get("LOG_LEVEL") if app.config.get("LOG_LEVEL") else "INFO"
@@ -16,23 +16,23 @@ if not isinstance(numeric_level, int):
 
 logging.basicConfig(level=numeric_level)
 
-iam_base_url=app.config['IAM_BASE_URL']
-iam_token_url=iam_base_url + '/token'
-iam_refresh_url=iam_base_url + '/token'
-iam_authorization_url=iam_base_url + '/authorize'
+oidc_base_url=app.config['OIDC_BASE_URL']
+oidc_token_url=oidc_base_url + '/token'
+oidc_refresh_url=oidc_base_url + '/token'
+oidc_authorization_url=oidc_base_url + '/authorize'
 
-iam_blueprint = OAuth2ConsumerBlueprint(
-    "iam", __name__,
-    client_id=app.config['IAM_CLIENT_ID'],
-    client_secret=app.config['IAM_CLIENT_SECRET'],
-    scope='openid email profile offline_access',
-    base_url=iam_base_url,
-    token_url=iam_token_url,
-    auto_refresh_url=iam_refresh_url,
-    authorization_url=iam_authorization_url,
+oidc_blueprint = OAuth2ConsumerBlueprint(
+    "oidc", __name__,
+    client_id=app.config['OIDC_CLIENT_ID'],
+    client_secret=app.config['OIDC_CLIENT_SECRET'],
+    scope=app.config['OIDC_SCOPES'],
+    base_url=oidc_base_url,
+    token_url=oidc_token_url,
+    auto_refresh_url=oidc_refresh_url,
+    authorization_url=oidc_authorization_url,
     redirect_to='home'
 )
-app.register_blueprint(iam_blueprint, url_prefix="/login")
+app.register_blueprint(oidc_blueprint, url_prefix="/login")
 
 from app import routes, errors
 
