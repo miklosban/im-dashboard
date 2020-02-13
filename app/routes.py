@@ -111,6 +111,7 @@ def managevm(op=None, infid=None, vmid=None):
     auth_data = utils.getUserAuthData(access_token)
     headers = {"Authorization": auth_data, "Accept": "application/json"}
 
+    op = op.lower()
     if op in ["stop", "start", "reboot"]:
         url = "%s/infrastructures/%s/vms/%s/%s" % (settings.imUrl, infid, vmid, op)
         response = requests.put(url, headers=headers)

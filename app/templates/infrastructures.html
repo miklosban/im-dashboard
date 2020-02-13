@@ -47,6 +47,8 @@
                     <td>
                     {% if infState["state"] == "configured" %}
                     <span class="badge badge-success"/>
+                    {% elif infState["state"] in ["stopped", "off"] %}
+                    <span class="badge badge-warning text-white"/>
                     {% elif infState["state"] in ["failed", "unconfigured", "unknown"] %}
                     <span class="badge badge-danger"/>
                     {% else %}

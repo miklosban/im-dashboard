@@ -16,13 +16,10 @@
             <div class="col-md-6 text-right">
               <!-- Button -->
               <button type=button class="btn btn-small btn-outline-secondary" onclick="history.back()"><span class="fas fa-arrow-left mr-2"></span> Back</button>
-              <button type=button class='btn btn-outline-warning' onclick='location.href = "{{ url_for('managevm', op='stop', infid=infid, vmid=vmid) }}"'><span class='fas fa-pause mr-2'></span>Stop</button>
-              <button type=button class='btn btn-outline-success' onclick='location.href = "{{ url_for('managevm', op='start', infid=infid, vmid=vmid) }}"'><span class='fas fa-play mr-2'></span>Start</button>
-              <button type=button class='btn btn-outline-primary' onclick='location.href = "{{ url_for('managevm', op='reboot', infid=infid, vmid=vmid) }}"'><span class='fas fa-redo mr-2'></span>Reboot</button>
-              <button type=button class='btn btn-outline-danger' onclick='location.href = "{{ url_for('managevm', op='terminate', infid=infid, vmid=vmid) }}"'><span class='fas fa-stop-circle mr-2'></span>Terminate</button>
-
-
-              
+              <button type=button class='btn btn-outline-warning' onclick="$('#managevm_confirm_stop').modal('show');"><span class='fas fa-pause mr-2'></span>Stop</button>
+              <button type=button class='btn btn-outline-success' onclick="$('#managevm_confirm_start').modal('show');"><span class='fas fa-play mr-2'></span>Start</button>
+              <button type=button class='btn btn-outline-primary' onclick="$('#managevm_confirm_reboot').modal('show');"><span class='fas fa-redo mr-2'></span>Reboot</button>
+              <button type=button class='btn btn-outline-danger' onclick="$('#managevm_confirm_terminate').modal('show');"><span class='fas fa-stop-circle mr-2'></span>Terminate</button>
             </div>
           </div> <!-- / .row -->
         </div>
@@ -45,6 +42,8 @@
                     {% if field == "state" %}
                       {% if value == "configured" %}
                       <span class="badge badge-success"/>
+                      {% elif value in ["stopped", "off"] %}
+                      <span class="badge badge-warning text-white"/>
                       {% elif value in ["failed", "unconfigured", "unknown"] %}
                       <span class="badge badge-danger"/>
                       {% else %}
@@ -61,7 +60,114 @@
               {% endfor %}
             </tbody>
         </table>
+                <!-- Modal Start -->
+                <div class="modal fade" id="managevm_confirm_start" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="managevm_confirm_start_label">Confirm VM start</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <div class="modal-body">
+                        Do you really want to Start the VM {{vmid}}?
+                      </div>
+                      <div class="modal-footer">
+                        <a class="btn btn-outline-primary cancelStartBtn" role="button" data-dismiss="modal">Cancel</a>
+                        <a class="btn btn-success StartBtn" role="button" href="{{ url_for('managevm', op='start', infid=infid, vmid=vmid) }}">Start</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Modal Reboot -->
+                <div class="modal fade" id="managevm_confirm_reboot" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="managevm_confirm_reboot_label">Confirm VM reboot</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <div class="modal-body">
+                        Do you really want to Reboot the VM {{vmid}}?
+                      </div>
+                      <div class="modal-footer">
+                        <a class="btn btn-outline-primary cancelRebootBtn" role="button" data-dismiss="modal">Cancel</a>
+                        <a class="btn btn-primary RebootBtn" role="button" href="{{ url_for('managevm', op='reboot', infid=infid, vmid=vmid) }}">Reboot</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Modal Stop -->
+                <div class="modal fade" id="managevm_confirm_stop" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="managevm_confirm_stop_label">Confirm VM stop</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <div class="modal-body">
+                        Do you really want to Stop the VM {{vmid}}?
+                      </div>
+                      <div class="modal-footer">
+                        <a class="btn btn-outline-primary cancelStopBtn" role="button" data-dismiss="modal">Cancel</a>
+                        <a class="btn btn-warning StopBtn" role="button" href="{{ url_for('managevm', op='stop', infid=infid, vmid=vmid) }}">Stop</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Modal Terminate -->
+                <div class="modal fade" id="managevm_confirm_terminate" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="managevm_confirm_terminate_label">Confirm VM terminate</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <div class="modal-body">
+                        Do you really want to Terminate the VM {{vmid}}?
+                      </div>
+                      <div class="modal-footer">
+                        <a class="btn btn-outline-primary cancelTerminateBtn" role="button" data-dismiss="modal">Cancel</a>
+                        <a class="btn btn-danger TerminateBtn" role="button" href="{{ url_for('managevm', op='terminate', infid=infid, vmid=vmid) }}">Terminate</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
         </div>
     </div>
 </div>
+
+<script>
+  $(document).ready(function () {
+      $(".StartBtn").click(function () {
+          // add spinner to button
+          $(this).parent().find(".cancelStartBtn").addClass("disabled", true);
+          $(this).addClass("disabled", true);
+          $(this).html( `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Starting...` );
+      });
+  });
+  $(document).ready(function () {
+    $(".RebootBtn").click(function () {
+        // add spinner to button
+        $(this).parent().find(".cancelRebootBtn").addClass("disabled", true);
+        $(this).addClass("disabled", true);
+        $(this).html( `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Rebooting...` );
+    });
+});
+$(document).ready(function () {
+  $(".StopBtn").click(function () {
+      // add spinner to button
+      $(this).parent().find(".cancelStopBtn").addClass("disabled", true);
+      $(this).addClass("disabled", true);
+      $(this).html( `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Stopping...` );
+  });
+});
+$(document).ready(function () {
+  $(".TerminateBtn").click(function () {
+      // add spinner to button
+      $(this).parent().find(".cancelTerminateBtn").addClass("disabled", true);
+      $(this).addClass("disabled", true);
+      $(this).html( `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Terminating...` );
+  });
+});
+</script>
 {% endblock %}
