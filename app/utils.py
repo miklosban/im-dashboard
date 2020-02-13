@@ -1,5 +1,6 @@
 import json, yaml, requests, os, io, ast, time
-from app import appdb
+from flask import flash
+from app import appdb, cred
 from fnmatch import fnmatch
 from hashlib import md5
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -21,11 +22,17 @@ def getUserAuthData(access_token):
         SITE_LIST = appdb.get_sites()
 
     if not SITE_LIST:
-        flash("Error retrieving VM info: \n" + response.text, 'warning')
+        flash("Error retrieving site list", 'warning')
 
+    cont = 0
     for site_name, (site_url, _) in SITE_LIST.items():
-        res += "\\nid = in2p3ost; type = OpenStack; username = egi.eu; tenant = openid; auth_version = 3.x_oidc_access_token;"
+        cont += 1
+        creds = cred.get_cred(site_name)
+        res += "\\nid = ost%s; type = OpenStack; username = egi.eu; tenant = openid; auth_version = 3.x_oidc_access_token;" % cont
         res += " host = %s; password = '%s'" % (site_url, access_token)
+        if creds and "project" in creds and creds["project"]:
+            res += "; domain = %s" % creds["project"]
+
     return res
 
 def format_json_radl(vminfo):

@@ -173,6 +173,24 @@ def inflog(infid=None):
     return render_template('inflog.html', log=log)
 
 
+@app.route('/outputs/<infid>')
+@authorized_with_valid_token
+def infoutputs(infid=None):
+
+    access_token = oidc_blueprint.session.token['access_token']
+    auth_data = utils.getUserAuthData(access_token)
+    headers = {"Authorization": auth_data}
+
+    url = "%s/infrastructures/%s/outputs" % (settings.imUrl, infid)
+    response = requests.get(url, headers=headers, verify=False)
+
+    if not response.ok:
+      outputs = {}
+    else:
+      outputs = response.json()["outputs"]
+
+    return render_template('outputs.html', infid=infid, outputs=outputs)
+
 @app.route('/delete/<infid>')
 @authorized_with_valid_token
 def infdel(infid=None):
@@ -284,7 +302,7 @@ def createdep():
   auth_data = utils.getUserAuthData(access_token)
   headers = {"Authorization": auth_data, "Content-Type": "text/yaml"}
 
-  url = "%s/infrastructures" % settings.imUrl
+  url = "%s/infrastructures?async=1" % settings.imUrl
   response = requests.post(url, headers=headers, data=payload)
 
   if not response.ok:

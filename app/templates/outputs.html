@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid">
+  {% include 'flashed_messages.html' %}
+    <br>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h4 class="font-weight-bold text-primary">Infrastructure {{ infid }} outputs:</h4>
+        </div>
+        <div class="card-body">
+
+    <div class="table-responsive">
+        <table id="tableServices" class="table table-bordered table-striped" width="100%" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+              {% for field, value in outputs | dictsort: %}
+                <tr>
+                  <td>{{ field }}</td>
+                  <td><pre>{{ value | tojson_pretty() | safe | replace("\\n", "\n") }}</pre></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    </div>
+    </div>
+</div>
+
+{% endblock %}
