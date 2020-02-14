@@ -3,6 +3,8 @@ FROM python:3.7
 COPY . /app
 WORKDIR /app/
 
+COPY ./tosca-templates /opt/tosca-templates
+
 ENV PYTHONPATH=/app
 
 RUN pip3 install gunicorn && pip install -r /app/requirements.txt

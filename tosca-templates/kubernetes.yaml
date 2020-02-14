@@ -1,0 +1,137 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - ec3_custom_types: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/custom_types.yaml
+
+metadata:
+  display_name: Launch a Kubernetes Virtual Cluster
+  icon: https://github.com/indigo-dc/tosca-types/raw/master/images/kubernetesFE.png
+
+description: TOSCA template for launching a Kubernetes Virtual Cluster.
+
+topology_template:
+  inputs:
+    wn_num:
+      type: integer
+      description: Number of WNs in the cluster
+      default: 1
+      required: yes
+
+    fe_cpus:
+      type: integer
+      description: Numer of CPUs for the front-end node
+      default: 2
+      required: yes
+
+    fe_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the front-end node
+      default: 4 GB
+      required: yes
+
+    wn_cpus:
+      type: integer
+      description: Numer of CPUs for the WNs
+      default: 2
+      required: yes
+
+    wn_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the WNs
+      default: 4 GB
+      required: yes
+
+    fe_instance_type:
+      type: string
+      description: Name of the FE instance type
+      default: null
+      required: yes
+
+    wn_instance_type:
+      type: string
+      description: Name of the WN instance type
+      default: null
+      required: yes
+
+    admin_username:
+      type: string
+      description: Username of the admin user
+      default: kubeuser
+    admin_token:
+      type: string
+      description: Access Token for the admin user
+      default: not_very_secret_token
+    install_kubeapps:
+      type: boolean
+      description: Flag to set the kubeapps UI to be installed
+      default: false
+
+
+  node_templates:
+
+    lrms_front_end:
+      type: tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes
+      capabilities:
+        endpoint:
+          properties:
+            port: 30443
+            protocol: tcp
+      properties:
+        admin_username:  { get_input: admin_username }
+        admin_token: { get_input: admin_token }
+        install_kubeapps:  { get_input: install_kubeapps }
+      requirements:
+        - host: front
+
+    front:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        endpoint:
+          properties:
+            dns_name: kubeserver
+            network_name: PUBLIC
+        host:
+          properties:
+            instance_type: { get_input: fe_instance_type }
+            num_cpus: { get_input: fe_cpus }
+            mem_size: { get_input: fe_mem }
+        os:
+          properties:
+            distribution: ubuntu
+            type: linux
+
+    wn_node:
+      type: tosca.nodes.indigo.LRMS.WorkerNode.Kubernetes
+      properties:
+        front_end_ip: { get_attribute: [ front, private_address, 0 ] }
+      capabilities:
+        wn:
+          properties:
+            max_instances: { get_input: wn_num }
+            min_instances: 0
+      requirements:
+        - host: wn
+            
+    wn:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        scalable:
+          properties:
+            count: 0
+        host:
+          properties:
+            instance_type: { get_input: wn_instance_type }
+            num_cpus: { get_input: wn_cpus }
+            mem_size: { get_input: wn_mem }
+        os:
+          properties:
+            distribution: ubuntu
+            type: linux
+
+  outputs:
+    cluster_ip:
+      value: { get_attribute: [ front, public_address, 0 ] }
+    cluster_creds:
+      value: { get_attribute: [ front, endpoint, credential, 0 ] }
+
+
