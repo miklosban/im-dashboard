@@ -1,4 +1,5 @@
 from app import app, oidc_blueprint, settings, utils, appdb, cred
+from oauthlib.oauth2.rfc6749.errors import InvalidTokenError, TokenExpiredError
 from werkzeug.exceptions import Forbidden
 from flask import json, render_template, request, redirect, url_for, flash, session, Markup
 import requests, json
@@ -24,12 +25,16 @@ def authorized_with_valid_token(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
 
-        if not oidc_blueprint.session.authorized or 'username' not in session:
-            return redirect(url_for('login'))
+        try:
+            if not oidc_blueprint.session.authorized or 'username' not in session:
+                return redirect(url_for('login'))
 
-        if oidc_blueprint.session.token['expires_in'] < 20:
-            app.logger.debug("Force refresh token")
-            oidc_blueprint.session.get('/userinfo')
+            if oidc_blueprint.session.token['expires_in'] < 20:
+                app.logger.debug("Force refresh token")
+                oidc_blueprint.session.get('/userinfo')
+        except (InvalidTokenError, TokenExpiredError) as e:
+            flash("Token expired.", 'warning')
+            return redirect(url_for('login'))
 
         return f(*args, **kwargs)
 
