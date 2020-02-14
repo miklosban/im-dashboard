@@ -46,24 +46,25 @@
                     </th>
                     <td>
                     {% if infState["state"] == "configured" %}
-                    <span class="badge badge-success"/>
+                    <span class="btn btn-success btn-sm">
                     {% elif infState["state"] in ["stopped", "off"] %}
-                    <span class="badge badge-warning text-white"/>
+                    <span class="btn btn-warning btn-sm text-white">
                     {% elif infState["state"] in ["failed", "unconfigured", "unknown"] %}
-                    <span class="badge badge-danger"/>
+                    <span class="btn btn-danger btn-sm">
                     {% else %}
-                    <span class="badge badge-warning text-white"><span class="spinner-grow spinner-grow-sm"></span>
+                    <span class="btn btn-warning btn-sm text-white"><span class="spinner-grow spinner-grow-sm"></span>
                     {% endif %}
-                    {{infState["state"]}}</td>
+                    <strong>
+                    {{infState["state"]}}
+                    </strong>
+                    </span>
+                    </td>
                     <td>
-                      <strong>
                     {% for vmId, vmState in infState["vm_states"].items() %}
-                      {% if loop.index > 1 %}
-                      ,&nbsp;
-                      {% endif %}
-                      <a href="{{ url_for('showvminfo', infid=infId, vmid=vmId) }}">{{vmId}}</a>
+                      <a class="btn btn-outline-secondary btn-sm" role="button" href="{{ url_for('showvminfo', infid=infId, vmid=vmId) }}">
+                        <span class="fas fa-server mr-2"></span>{{vmId}}
+                      </a>
                     {% endfor %}
-                      </strong>
                     </td>
                     <td>
                       <div class="btn-group">
@@ -78,7 +79,7 @@
                           <a class="dropdown-item" href="{{ url_for('template', infid=infId) }}"><span class="fas fa-search mr-2 grey-text"></span>Show template</a>
                           <a class="dropdown-item" href="{{ url_for('inflog', infid=infId) }}"><span class="fas fa-file-alt mr-2 grey-text"></span>Log</a>
                           <a class="dropdown-item" href="{{ url_for('infoutputs', infid=infId) }}"><span class="fas fa-file-export mr-2 grey-text"></span>Outputs</a>
-                          <a class="dropdown-item" href="$('#reconfigure_confirm_{{infId}}').modal('show');"><span class="fas fa-recycle mr-2 grey-text"></span>Reconfigure</a>
+                          <a class="dropdown-item" href="#" onclick="$('#reconfigure_confirm_{{infId}}').modal('show');"><span class="fas fa-recycle mr-2 grey-text"></span>Reconfigure</a>
                       </div>
                     </td>
                 </tr>
