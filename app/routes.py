@@ -122,9 +122,11 @@ def showvminfo(infid=None, vmid=None):
 
         cont = 0
         while "net_interface.%s.ip" % cont in vminfo:
-              nets += "Iface %s: %s\n" % (cont, vminfo["net_interface.%s.ip" % cont])
-              del vminfo["net_interface.%s.ip" % cont]
-              cont += 1
+            if cont > 0:
+                nets += Markup('<br/>')
+            nets += "Iface %s: %s" % (cont, vminfo["net_interface.%s.ip" % cont])
+            del vminfo["net_interface.%s.ip" % cont]
+            cont += 1
 
         cont = 0
         while "net_interface.%s.connection" % cont in vminfo:

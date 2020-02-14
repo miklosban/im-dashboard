@@ -1,7 +1,8 @@
 # im-dashboard
-Infrastructure Manager - Simple Graphical UI
+Infrastructure Manager - Simple Graphical UI (based on [INDIGO PaaS Orchestrator Dashboard](https://github.com/indigo-dc/orchestrator-dashboard))
 
 Functionalities:
+
 - OIDC authentication
 - Display user's deployments
 - Display deployment details, template and log
@@ -10,7 +11,6 @@ Functionalities:
 
 The im-dashboard is a Python application built with the [Flask](http://flask.pocoo.org/) microframework; [Flask-Dance](https://flask-dance.readthedocs.io/en/latest/) is used for Openid-Connect/OAuth2 integration.
 
-
 The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to serve the Flask Application.
 
 # How to deploy the dashboard
@@ -18,7 +18,7 @@ The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to s
 Register a client in an OIDC server with the following properties:
 
 - redirect uri: `https://<DASHBOARD_HOST>:<PORT>/login/oidc/authorized`
-- scopes: 'openid', 'email', 'profile', 'offline_access'
+- scopes: 'openid', 'email', 'profile', 'offline_access' ('eduperson_entitlement' in EGI Check-In optional)
 - introspection endpoint enabled
 
 Create the `config.json` file (see the [example](app/config-sample.json)) setting the following variables:
@@ -29,6 +29,7 @@ Create the `config.json` file (see the [example](app/config-sample.json)) settin
 | OIDC_CLIENT_SECRET | OIDC client Secret | Y | N/A
 | OIDC_BASE_URL | OIDC service URL | Y | N/A
 | OIDC_GROUP_MEMBERSHIP | List of OIDC groups to be checked for allowing access | N | []
+| OIDC_SCOPES | OIDC scopes | Y | N/A
 | IM_URL | IM Service URL | Y | N/A
 | TOSCA_TEMPLATES_DIR | Absolute path where the TOSCA templates are stored | Y | N/A
 | IM_URL | Infrastructure Manager service URL | Y | N/A
@@ -37,17 +38,19 @@ Create the `config.json` file (see the [example](app/config-sample.json)) settin
 | LOG_LEVEL | Set Logging level | N | info
 
 Clone the tosca-templates repository to get a set of tosca templates that the dashboard will load, e.g.:
-````
+
+```sh
 git clone https://github.com/indigo-dc/tosca-templates -b stable/v3.0
-````
+```
 
 You need to run the IM dashboard on HTTPS (otherwise you will get an error); you can choose between
+
 - enabling the HTTPS support
 - using an HTTPS proxy
 
 Details are provided in the next paragraphs.
 
-## TOSCA Template Metadata 
+## TOSCA Template Metadata
 
 The IM dashboard can exploit some optional information provided in the TOSCA templates for rendering the cards describing the type of applications/services or virtual infrastructure that a user can deploy.
 
@@ -64,7 +67,7 @@ In particular, the following tags are supported:
 
 Example of template metadata:
 
-```
+```yaml
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
@@ -84,12 +87,13 @@ topology_template:
 ### Enabling HTTPS
 
 You would need to provide
+
 - a pair certificate/key that the container will read from the container paths `/certs/cert.pem` and `/certs/key.pem`;
 - the environment variable `ENABLE_HTTPS` set to `True`
- 
 
 Run the docker container:
-```
+
+```sh
 docker run -d -p 443:5001 --name='im-dashboard' \
            -e ENABLE_HTTPS=True \
            -v $PWD/cert.pem:/certs/cert.pem \
@@ -98,11 +102,13 @@ docker run -d -p 443:5001 --name='im-dashboard' \
            -v $PWD/tosca-templates:/opt/tosca-templates \
            grycap/im-dashboard:latest
 ```
+
 Access the dashboard at `https://<DASHBOARD_HOST>/`
 
-### Using an HTTPS Proxy 
+### Using an HTTPS Proxy
 
 Example of configuration for nginx:
+
 ```
 server {
       listen         80;
@@ -138,12 +144,13 @@ server {
 
 Run the docker container:
 
-```
+```sh
 docker run -d -p 5001:5001 --name='im-dashboard' \
            -v $PWD/config.json:/app/app/config.json \
            -v $PWD/tosca-templates:/opt/tosca-templates \
            grycap/im-dashboard:latest
 ```
+
 :warning: Remember to update the redirect uri in the OIDC client to `https://<PROXY_HOST>/login/oidc/authorized`
 
 Access the dashboard at `https://<PROXY_HOST>/`
