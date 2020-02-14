@@ -19,7 +19,7 @@ topology_template:
 
     fe_cpus:
       type: integer
-      description: Numer of CPUs for the front-end node
+      description: Number of CPUs for the front-end node
       default: 2
       required: yes
 
@@ -31,7 +31,7 @@ topology_template:
 
     wn_cpus:
       type: integer
-      description: Numer of CPUs for the WNs
+      description: Number of CPUs for the WNs
       default: 2
       required: yes
 

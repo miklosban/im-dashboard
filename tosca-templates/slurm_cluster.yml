@@ -21,7 +21,7 @@ topology_template:
       required: yes
     fe_cpus:
       type: integer
-      description: Numer of CPUs for the front-end node
+      description: Number of CPUs for the front-end node
       default: 1
       required: yes
     fe_mem:
@@ -31,7 +31,7 @@ topology_template:
       required: yes
     wn_cpus:
       type: integer
-      description: Numer of CPUs for the WNs
+      description: Number of CPUs for the WNs
       default: 1
       required: yes
     wn_mem:
