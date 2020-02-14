@@ -39,17 +39,18 @@ topology_template:
 
     admin_username:
       type: string
-      description: Username of the admin user
+      description: Username of the Kubernetes admin user
       default: kubeuser
     admin_token:
       type: string
-      description: Access Token for the admin user
+      description: Access Token for the Kubernetes admin user
       default: not_very_secret_token
     install_kubeapps:
       type: boolean
       description: Flag to set the kubeapps UI to be installed
-      default: false
-
+      default: true
+      constraints:
+      - valid_values: [ true, false ]
 
   node_templates:
 

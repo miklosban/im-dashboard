@@ -41,27 +41,27 @@ topology_template:
 
     admin_email:
       type: string
-      description: email of the admin user
+      description: Email of the Galaxy admin user
       default: admin@admin.com
     admin_api_key:
       type: string
-      description: key to access the API with admin role
+      description: Key to access the Galaxy API with admin role
       default: not_very_secret_api_key
     version:
       type: string
-      description: galaxy version to install
+      description: Galaxy version to install
       default: master
     instance_description:
       type: string
-      description: galaxy instance description
+      description: Galaxy instance description
       default: INDIGO Galaxy test
     instance_key_pub:
       type: string
-      description: galaxy instance ssh public key
+      description: Galaxy instance ssh public key
       default: your_ssh_public_key
     export_dir:
       type: string
-      description: path to store galaxy data
+      description: Path to store Galaxy data
       default: /export
 
   node_templates:
