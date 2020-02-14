@@ -6,6 +6,10 @@ imports:
 description: >
   TOSCA template for deploying a Galaxy Server using a local LRMS.
 
+metadata:
+  display_name: Deploy a Galaxy portal
+  icon: https://github.com/grycap/im-dashboard/raw/master/tosca-templates/images/galaxy.png
+
 topology_template:
 
   inputs:
