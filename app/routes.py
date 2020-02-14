@@ -272,6 +272,9 @@ def infoutputs(infid=None):
       outputs = {}
     else:
       outputs = response.json()["outputs"]
+      for elem in outputs:
+          if isinstance(outputs[elem], str) and (outputs[elem].startswith('http://') or outputs[elem].startswith('https://')):
+              outputs[elem] = Markup("<a href='%s'>%s</a>" % (outputs[elem], outputs[elem]))
 
     return render_template('outputs.html', infid=infid, outputs=outputs)
 
@@ -283,7 +286,7 @@ def infdel(infid=None):
     auth_data = utils.getUserAuthData(access_token)
     headers = {"Authorization": auth_data}
 
-    url = "%s/infrastructures/%s" % (settings.imUrl, infid)
+    url = "%s/infrastructures/%s?async=1" % (settings.imUrl, infid)
     response = requests.delete(url, headers=headers)
 
     if not response.ok:
