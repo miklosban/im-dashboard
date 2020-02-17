@@ -3,12 +3,14 @@
  <div id="confScheduling">
    <div class="form-group">
        <h5>Configure scheduling:</h5>
+<!--
        <label class="radio-inline">
-           <input id="autosched" type="radio" name="extra_opts.schedtype" value="auto" checked> Auto
+           <input id="autosched" type="radio" name="extra_opts.schedtype" value="auto"> Auto
        </label>
        <label class="radio-inline">
-           <input id="mansched" type="radio" name="extra_opts.schedtype" value="man"> Manual
+           <input id="mansched" type="radio" name="extra_opts.schedtype" value="man" checked> Manual
        </label>
+-->
    </div>
 
    <script>
@@ -42,6 +44,10 @@
             }
         });
     }
+
+    function activateSubmit() {
+        $(".submitBtn").attr("disabled", false);
+    }
     </script>
 
    <div id="manschedConf" class="form-group">
@@ -58,7 +64,7 @@
         <option name="selectedImage" value="">Select a VO</option>
        </select>
        <label>Select a image:</label>
-       <select class="js-example-basic-single js-states form-control" id="selectedImage" name="extra_opts.selectedImage">
+       <select class="js-example-basic-single js-states form-control" id="selectedImage" name="extra_opts.selectedImage" onchange="activateSubmit()">
             <option name="selectedImage" value="">Select a provider</option>
         </select>
    </div>

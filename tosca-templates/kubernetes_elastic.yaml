@@ -4,16 +4,17 @@ imports:
   - ec3_custom_types: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/custom_types.yaml
 
 metadata:
-  display_name: Launch a Kubernetes Virtual Cluster
+  display_name: Launch a Kubernetes Virtual Elastic Cluster
   icon: https://github.com/grycap/im-dashboard/raw/master/tosca-templates/images/kubernetes.png
+  tag: elastic
 
-description: TOSCA template for launching a Kubernetes Virtual Cluster.
+description: TOSCA template for launching a Kubernetes Virtual Elastic Cluster.
 
 topology_template:
   inputs:
     wn_num:
       type: integer
-      description: Number of WNs in the cluster
+      description: Maximum number of WNs in the elastic cluster
       default: 1
       required: yes
     fe_cpus:
@@ -50,6 +51,17 @@ topology_template:
 
   node_templates:
 
+    elastic_cluster_front_end:
+      type: tosca.nodes.ec3.ElasticCluster
+      capabilities:
+        endpoint:
+          properties:
+            port: 8800
+            protocol: tcp
+      requirements:
+        - lrms: lrms_front_end
+        - wn: wn_node
+
     lrms_front_end:
       type: tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes
       capabilities:
@@ -84,6 +96,11 @@ topology_template:
       type: tosca.nodes.indigo.LRMS.WorkerNode.Kubernetes
       properties:
         front_end_ip: { get_attribute: [ front, private_address, 0 ] }
+      capabilities:
+        wn:
+          properties:
+            max_instances: { get_input: wn_num }
+            min_instances: 0
       requirements:
         - host: wn
             
@@ -92,7 +109,7 @@ topology_template:
       capabilities:
         scalable:
           properties:
-            count:  { get_input: wn_num }
+            count:  1
         host:
           properties:
             num_cpus: { get_input: wn_cpus }
