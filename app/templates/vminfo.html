@@ -79,7 +79,8 @@
                   </td>
                   <td>
                     {% if field == "disk.0.os.credentials.private_key" %}
-                    <pre>{{ value }}</pre>
+                    <div class="d-none" id="text-val">{{ value }}</div>
+                    <button class="btn btn-primary btn-sm" id="downloadBtn"><i class="fa fa-download"></i> Download</button>
                     {% else %}
                     {{ value }}
                     {% endif %}
@@ -197,5 +198,25 @@ $(document).ready(function () {
       $(this).html( `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Terminating...` );
   });
 });
+
+function download(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
+
+document.getElementById("downloadBtn").addEventListener("click", function(){
+    var text = document.getElementById("text-val").innerHTML;
+    var filename = "key.pem";
+
+    download(filename, text);
+}, false);
 </script>
 {% endblock %}
