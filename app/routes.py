@@ -256,6 +256,22 @@ def inflog(infid=None):
       log = response.text
     return render_template('inflog.html', log=log)
 
+@app.route('/vmlog/<infid>/<vmid>')
+@authorized_with_valid_token
+def vmlog(infid=None, vmid=None):
+
+    access_token = oidc_blueprint.session.token['access_token']
+    auth_data = utils.getUserAuthData(access_token)
+    headers = {"Authorization": auth_data}
+
+    url = "%s/infrastructures/%s/vms/%s/contmsg" % (settings.imUrl, infid, vmid)
+    response = requests.get(url, headers=headers, verify=False)
+
+    if not response.ok:
+      log="Not found"
+    else:
+      log = response.text
+    return render_template('inflog.html', log=log, vmid=vmid)
 
 @app.route('/outputs/<infid>')
 @authorized_with_valid_token

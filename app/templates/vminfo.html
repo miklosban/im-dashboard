@@ -9,17 +9,18 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3">
           <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-5">
               <!-- Title -->
               <h4 class="font-weight-bold text-primary">VM ID {{ vmid }} info:</h4>
             </div>
-            <div class="col-md-6 text-right">
+            <div class="col-md-7 text-right">
               <!-- Button -->
               <button type=button class="btn btn-small btn-outline-secondary" onclick="history.back()"><span class="fas fa-arrow-left mr-2"></span> Back</button>
               <button type=button class='btn btn-outline-warning' onclick="$('#managevm_confirm_stop').modal('show');"><span class='fas fa-pause mr-2'></span>Stop</button>
               <button type=button class='btn btn-outline-success' onclick="$('#managevm_confirm_start').modal('show');"><span class='fas fa-play mr-2'></span>Start</button>
               <button type=button class='btn btn-outline-primary' onclick="$('#managevm_confirm_reboot').modal('show');"><span class='fas fa-redo mr-2'></span>Reboot</button>
               <button type=button class='btn btn-outline-danger' onclick="$('#managevm_confirm_terminate').modal('show');"><span class='fas fa-power-off mr-2'></span>Terminate</button>
+              <button type=button class='btn btn-outline-primary' href="{{ url_for('vmlog', infid=infid, vmid=vmid) }}"><span class='fas fa-file-alt mr-2'></span>Log</button>
             </div>
           </div> <!-- / .row -->
         </div>

@@ -11,7 +11,13 @@
           <div class="row">
             <div class="col-md-6">
               <!-- Title -->
-              <h4 class="font-weight-bold text-primary">Deployment log</h4>
+              <h4 class="font-weight-bold text-primary">
+                {% if vmid %}
+                VM {{ vmid }} log
+                {% else %}
+                Deployment log
+                {% endif %}
+              </h4>
             </div>
             <div class="col-md-6 text-right">
               <!-- Button -->

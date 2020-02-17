@@ -37,10 +37,6 @@ topology_template:
       default: 4 GB
       required: yes
 
-    admin_username:
-      type: string
-      description: Username of the Kubernetes admin user
-      default: kubeuser
     admin_token:
       type: string
       description: Access Token for the Kubernetes admin user
@@ -59,10 +55,10 @@ topology_template:
       capabilities:
         endpoint:
           properties:
-            port: 30443
+            port: 80
             protocol: tcp
       properties:
-        admin_username:  { get_input: admin_username }
+        admin_username:  kubeuser
         admin_token: { get_input: admin_token }
         install_kubeapps:  { get_input: install_kubeapps }
       requirements:
@@ -107,9 +103,9 @@ topology_template:
             type: linux
 
   outputs:
+    dashboard_endpoint:
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/dashboard' ] }
     cluster_ip:
       value: { get_attribute: [ front, public_address, 0 ] }
     cluster_creds:
       value: { get_attribute: [ front, endpoint, credential, 0 ] }
-
-

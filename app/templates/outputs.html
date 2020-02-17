@@ -32,7 +32,13 @@
               {% for field, value in outputs | dictsort: %}
                 <tr>
                   <td>{{ field }}</td>
-                  <td><pre>{{ value | tojson_pretty() | safe | replace("\\n", "\n") }}</pre></td>
+                  <td>
+                    {% if "a href=" in value  %}
+                    {{ value }}
+                    {% else %}
+                    <pre>{{ value | tojson_pretty() | safe | replace("\\n", "\n") }}</pre>
+                    {% endif %}
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>
