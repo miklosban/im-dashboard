@@ -388,11 +388,11 @@ def createdep():
 
       form_data = request.form.to_dict()
 
-      if form_data['extra_opts.schedtype'] == "man":
-          image = "appdb://%s/%s?%s" % (form_data['extra_opts.selectedSite'],
-                                        form_data['extra_opts.selectedImage'],
-                                        form_data['extra_opts.selectedVO'])
-          template = add_image_to_template(template, image)
+#      if form_data['extra_opts.schedtype'] == "man":
+      image = "appdb://%s/%s?%s" % (form_data['extra_opts.selectedSite'],
+                                    form_data['extra_opts.selectedImage'],
+                                    form_data['extra_opts.selectedVO'])
+      template = add_image_to_template(template, image)
 
       inputs = { k:v for (k,v) in form_data.items() if not k.startswith("extra_opts.") }
 
