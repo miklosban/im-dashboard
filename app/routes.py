@@ -124,7 +124,8 @@ def showvminfo(infid=None, vmid=None):
         while "net_interface.%s.ip" % cont in vminfo:
             if cont > 0:
                 nets += Markup('<br/>')
-            nets += "Iface %s: %s" % (cont, vminfo["net_interface.%s.ip" % cont])
+            nets += Markup('<i class="fa fa-network-wired"></i>')
+            nets += " %s: %s" % (cont, vminfo["net_interface.%s.ip" % cont])
             del vminfo["net_interface.%s.ip" % cont]
             cont += 1
 
