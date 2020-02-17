@@ -106,6 +106,8 @@ def showvminfo(infid=None, vmid=None):
     else:
         app.logger.debug("VM Info: %s" % response.text)
         vminfo = utils.format_json_radl(response.json()["radl"])
+        if "cpu.arch" in vminfo:
+            del vminfo["cpu.arch"]
         if "state" in vminfo:
             state = vminfo["state"]
             del vminfo["state"]

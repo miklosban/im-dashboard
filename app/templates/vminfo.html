@@ -61,6 +61,43 @@
                     {{ nets }}
                   </td>
                 </tr>
+                <tr>
+                  <th>
+                    HW Features:
+                  </th>
+                  <td>
+                    {{ vminfo['cpu.count'] }} CPUs, 
+                    {{ vminfo['memory.size'] }} of RAM
+                    {% set _dummy=vminfo.pop('cpu.count') %}
+                    {% set _dummy=vminfo.pop('memory.size') %}
+                    {% if 'disks.free_size' in vminfo %}
+                      , {{ vminfo['disks.free_size'] }} of HD
+                      {% set _dummy=vminfo.pop('disks.free_size') %}
+                    {% elif 'disk.0.free_size' in vminfo %}
+                      , {{ vminfo['disk.0.free_size'] }} of HD
+                      {% set _dummy=vminfo.pop('disk.0.free_size') %}
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    Credentials:
+                  </th>
+                  <td>
+                    Username: {{ vminfo['disk.0.os.credentials.username'] }}
+                    {% set _dummy=vminfo.pop('disk.0.os.credentials.username') %}
+                    {% if 'disk.0.os.credentials.password' in vminfo %}
+                      {% set _dummy=vminfo.pop('disk.0.os.credentials.password') %}
+                      - Password: {{ vminfo['disk.0.os.credentials.password'] }} 
+                    {% endif %}
+                    {% if 'disk.0.os.credentials.private_key' in vminfo %}
+                      {% set _dummy=vminfo.pop('disk.0.os.credentials.private_key') %}
+                      - Key: 
+                      <div class="d-none" id="text-val">{{ value }}</div>
+                      <button class="btn btn-primary btn-sm" id="downloadBtn"><i class="fa fa-download"></i> Download</button>
+                    {% endif %}
+                  </td>
+                </tr>
             </tbody>
         </table>
 
