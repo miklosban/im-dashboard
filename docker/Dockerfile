@@ -11,7 +11,7 @@ RUN pip3 install gunicorn && pip install -r /app/requirements.txt
 
 EXPOSE 5001
 
-ENV TIMEOUT 60
+ENV TIMEOUT 180
 ENV ENABLE_HTTPS False
 ENV WORKERS 1
 

@@ -5,21 +5,26 @@ from urllib.parse import urlparse
 
 APPDB_URL = "https://appdb.egi.eu"
 
-def appdb_call(path):
+def appdb_call(path, retries=3):
     """
     Basic AppDB REST API call
     """
-    resp = requests.request("GET", APPDB_URL + path, verify=False)
-    if resp.status_code == 200:
-        return xmltodict.parse(resp.text.replace('\n', ''))['appdb:appdb']
-    else:
-        return None
+    data = None
+    cont = 0
+    while data == None and cont < retries:
+        cont + 1
+        resp = requests.request("GET", APPDB_URL + path, verify=False)
+        if resp.status_code == 200:
+            data = xmltodict.parse(resp.text.replace('\n', ''))['appdb:appdb']
+
+    return data
 
 def get_vo_list():
     vos = []
     data = appdb_call('/rest/1.0/vos')
-    for vo in data['vo:vo']:
-        vos.append(vo['@name'])
+    if data:
+        for vo in data['vo:vo']:
+            vos.append(vo['@name'])
     return vos
 
 def check_supported_VOs(site, vo):
@@ -39,7 +44,7 @@ def get_sites(vo=None):
 
     data = appdb_call(appdburl)
 
-    if 'appdb:site' not in data:
+    if not data or 'appdb:site' not in data:
         return []
 
     providersID = []
@@ -72,6 +77,8 @@ def get_sites(vo=None):
 def get_images(name, vo):
     oss = []
     data = appdb_call('/rest/1.0/sites?flt=%%2B%%3Dvo.name:%s&%%2B%%3Dsite.supports:1' % vo)
+    if not data:
+        return []
     for site in data['appdb:site']:
         if isinstance(site['site:service'], list):
             services = site['site:service']
