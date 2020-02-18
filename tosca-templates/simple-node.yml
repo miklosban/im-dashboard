@@ -26,18 +26,10 @@ topology_template:
       default: 2 GB
       constraints:
       - valid_values: [ 2 GB, 4 GB, 8 GB, 16 GB ]  
-
     num_instances:
       type: integer
       description: Number of VMs to be spawned
       default: 1
-
-    os_distribution: 
-      type: string
-      default: ubuntu
-      description: Operating System distro
-      constraints:
-      - valid_values: [ 'ubuntu', 'centos' ]
 
   node_templates:
 
@@ -56,7 +48,6 @@ topology_template:
             mem_size: { get_input: mem_size }
         os:
           properties:
-            distribution: { get_input: os_distribution }
             type: linux
 
   outputs:
