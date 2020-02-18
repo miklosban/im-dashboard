@@ -10,6 +10,13 @@ SITE_LIST = {}
 LAST_UPDATE = 0
 CACHE_DELAY = 3600
 
+def getUserVOs(entitlements):
+    vos = []
+    for elem in entitlements:
+        if elem.startswith('urn:mace:egi.eu:group:'):
+            vos.append(elem[22:22 + elem[22:].find(':')])
+    return vos
+
 def getUserAuthData(access_token):
     global SITE_LIST
     global LAST_UPDATE

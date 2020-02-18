@@ -55,10 +55,18 @@ def home():
     if not oidc_blueprint.session.authorized:
         return redirect(url_for('login'))
 
-    account_info = oidc_blueprint.session.get(urlparse(settings.oidcUrl)[2] + "/userinfo")
+    try:
+        account_info = oidc_blueprint.session.get(urlparse(settings.oidcUrl)[2] + "/userinfo")
+    except (InvalidTokenError, TokenExpiredError) as e:
+        flash("Token expired.", 'warning')
+        return redirect(url_for('login'))
 
     if account_info.ok:
         account_info_json = account_info.json()
+
+        session["vos"] = None
+        if 'eduperson_entitlement' in account_info_json:
+            session["vos"] = utils.getUserVOs(account_info_json['eduperson_entitlement'])
 
         if settings.oidcGroups:
             user_groups = []
@@ -324,6 +332,8 @@ def configure():
     app.logger.debug("Template: " + json.dumps(toscaInfo[selected_tosca]))
 
     vos = appdb.get_vo_list()
+    if session["vos"]:
+        vos = [vo for vo in vos if vo in session["vos"]]
 
     return render_template('createdep.html',
                            template=toscaInfo[selected_tosca],
