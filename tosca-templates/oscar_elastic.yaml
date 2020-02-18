@@ -136,5 +136,11 @@ topology_template:
   outputs:
     dashboard_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/dashboard' ] }
-    kubeapps_endpoint:
-      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/kubeapps' ] }
+    oscar_endpoint:
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/oscar' ] }
+    oscarui_endpoint:
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/oscar/ui' ] }
+    minio_endpoint:
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/minio' ] }
+    openfaas_endpoint:
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/openfaas' ] }
