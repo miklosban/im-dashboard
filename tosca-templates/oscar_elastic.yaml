@@ -42,12 +42,27 @@ topology_template:
       type: string
       description: Access Token for the Kubernetes admin user
       default: not_very_secret_token
-
+    minio_secretkey:
+      type: string
+      description: Minio Secretkey
+      default: minio123
 
   node_templates:
 
     oscar:
       type: tosca.nodes.indigo.OSCAR
+      properties:
+        minio_secretkey:  { get_input: minio_secretkey }
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              http_port:
+                protocol: tcp
+                source: 80
+              https_port:
+                protocol: tcp
+                source: 443
       requirements:
         - host: lrms_front_end
 
@@ -78,7 +93,7 @@ topology_template:
       capabilities:
         endpoint:
           properties:
-            port: 443
+            port: 30443
             protocol: tcp
       properties:
         admin_username:  kubeuser
@@ -86,6 +101,7 @@ topology_template:
         install_kubeapps:  false
         install_metrics: true
         install_nfs_client: true
+        install_ingress: false
         version: 1.16.4
       requirements:
         - host: front
@@ -135,7 +151,7 @@ topology_template:
 
   outputs:
     dashboard_endpoint:
-      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/dashboard' ] }
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':30443/' ] }
     oscar_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/oscar' ] }
     oscarui_endpoint:

@@ -21,6 +21,7 @@
         </div>
 
         <div class="card-body">
+          <div class="table-responsive">
           <table id="tableServices" class="table table-bordered table-striped" width="100%" cellspacing="0">
             <thead>
                 <tr>
@@ -44,6 +45,21 @@
             </tbody>
         </table>
         </div>
+        </div>
     </div>
 </div>
+<script>
+  $('#tableServices').dataTable( {
+    "paging": false,
+    "info": false,
+    "searching": false,
+    "responsive": true,
+    "order": [],
+    "columnDefs": [ {
+      "targets"  : 'no-sort',
+      "orderable": false,
+    }],
+    "order": [[ 1, "asc" ]]
+});
+</script>
 {% endblock %}
