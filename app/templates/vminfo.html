@@ -111,10 +111,10 @@
                       <br> Password: {{ vminfo['disk.0.os.credentials.password'] }} 
                     {% endif %}
                     {% if 'disk.0.os.credentials.private_key' in vminfo %}
-                      {% set _dummy=vminfo.pop('disk.0.os.credentials.private_key') %}
                       <br> Key: 
-                      <div class="d-none" id="text-val">{{ value }}</div>
+                      <div class="d-none" id="text-val">{{ vminfo['disk.0.os.credentials.private_key'] }}</div>
                       <button class="btn btn-primary btn-sm" id="downloadBtn"><i class="fa fa-download"></i> Download</button>
+                      {% set _dummy=vminfo.pop('disk.0.os.credentials.private_key') %}
                     {% endif %}
                   </td>
                 </tr>
@@ -137,12 +137,7 @@
                     {{ field }}
                   </td>
                   <td>
-                    {% if field == "disk.0.os.credentials.private_key" %}
-                    <div class="d-none" id="text-val">{{ value }}</div>
-                    <button class="btn btn-primary btn-sm" id="downloadBtn"><i class="fa fa-download"></i> Download</button>
-                    {% else %}
                     {{ value }}
-                    {% endif %}
                   </td>
                 </tr>
               {% endfor %}
