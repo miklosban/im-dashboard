@@ -15,16 +15,9 @@
             </div>
             <div class="col-md-7 text-right">
               <!-- Button -->
-              <!--
-              <button type=button class="btn btn-small btn-outline-secondary" onclick="history.back()"><span class="fas fa-arrow-left mr-2"></span> Back</button>
-              <button type=button class='btn btn-outline-warning' onclick="$('#managevm_confirm_stop').modal('show');"><span class='fas fa-pause mr-2'></span>Stop</button>
-              <button type=button class='btn btn-outline-success' onclick="$('#managevm_confirm_start').modal('show');"><span class='fas fa-play mr-2'></span>Start</button>
-              <button type=button class='btn btn-outline-primary' onclick="$('#managevm_confirm_reboot').modal('show');"><span class='fas fa-redo mr-2'></span>Reboot</button>
-              <button type=button class='btn btn-outline-danger' onclick="$('#managevm_confirm_terminate').modal('show');"><span class='fas fa-power-off mr-2'></span>Terminate</button>
-              <a class='btn btn-outline-primary' href="{{ url_for('vmlog', infid=infid, vmid=vmid) }}"><span class='fas fa-file-alt mr-2'></span>Log</a>
-              -->
-              <div>
-
+              <div class="btn-group">
+                <button type=button class="btn btn-sm btn-outline-secondary mr-2" onclick="history.back()"><span class="fas fa-arrow-left mr-2"></span> Back</button>
+                <button type=button class='btn btn-sm btn-primary-secondary mr-2' onclick='location.reload()'><span class='fas fa-sync mr-2'></span>Refresh</button>
                 <div class="dropdown">
                   <button class="btn btn-sm btn-primary dropdown-toggle mr-2" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class='fas fa-server mr-2'></span> Manage VM
