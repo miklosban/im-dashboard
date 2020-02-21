@@ -22,37 +22,49 @@ topology_template:
       description: Number of CPUs for the front-end node
       default: 2
       required: yes
+      constraints:
+      - valid_values: [ 2, 4, 6, 8 ]
     fe_mem:
       type: scalar-unit.size
       description: Amount of Memory for the front-end node
       default: 4 GB
       required: yes
+      constraints:
+      - valid_values: [ 4 GB, 8 GB, 16 GB ]
     wn_cpus:
       type: integer
       description: Number of CPUs for the WNs
       default: 2
       required: yes
+      constraints:
+      - valid_values: [ 2, 4, 6, 8 ]
     wn_mem:
       type: scalar-unit.size
       description: Amount of Memory for the WNs
       default: 4 GB
       required: yes
+      constraints:
+      - valid_values: [ 4 GB, 8 GB, 16 GB ]
+
+    storage_size:
+      type: string
+      description: Size of the extra HD added to the instance
+      default: 50 GB
+      required: yes
+      constraints:
+      - valid_values: [ 30 GB, 50 GB, 100 GB ]
 
     admin_token:
       type: string
       description: Access Token for the Kubernetes admin user
       default: not_very_secret_token
-    minio_secretkey:
-      type: string
-      description: Minio Secretkey
-      default: minio123
 
   node_templates:
 
     oscar:
       type: tosca.nodes.indigo.OSCAR
       properties:
-        minio_secretkey:  { get_input: minio_secretkey }
+        minio_secretkey:  minio123
       capabilities:
         endpoint:
           properties:
@@ -121,6 +133,20 @@ topology_template:
           properties:
             distribution: ubuntu
             type: linux
+      requirements:
+        - local_storage:
+            node: my_block_storage
+            capability: tosca.capabilities.Attachment
+            relationship:
+              type: tosca.relationships.AttachesTo
+              properties:
+                location: /pv
+                device: hdb
+
+    my_block_storage:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: { get_input: storage_size }
 
     wn_node:
       type: tosca.nodes.indigo.LRMS.WorkerNode.Kubernetes
@@ -152,11 +178,5 @@ topology_template:
   outputs:
     dashboard_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':30443/' ] }
-    oscar_endpoint:
-      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/oscar' ] }
     oscarui_endpoint:
-      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/oscar/ui' ] }
-    minio_endpoint:
-      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/minio' ] }
-    openfaas_endpoint:
-      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/openfaas' ] }
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/' ] }
