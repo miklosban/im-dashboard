@@ -20,7 +20,7 @@
         $('#selectedSite').append("<option value=''>Loading Sites ...</option>");
         $.ajax({
             method: "GET",
-            url: "{{ url_for('getsites' }}/" + $('#selectedVO').val(),
+            url: "{{ url_for('getsites') }}/" + $('#selectedVO').val(),
             success : function(text)
             {
                 $('#selectedSite').empty();
@@ -35,7 +35,7 @@
         $('#selectedImage').append("<option value=''>Loading Images ...</option>");
         $.ajax({
             method: "GET",
-            url: "{{ url_for('getimages' }}/" + $("#selectedSite").val() + "/" + $('#selectedVO').val(),
+            url: "{{ url_for('getimages') }}/" + $("#selectedSite").val() + "/" + $('#selectedVO').val(),
             success : function(text)
             {
                 $('#selectedImage').empty();
