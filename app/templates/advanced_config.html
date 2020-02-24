@@ -20,7 +20,7 @@
         $('#selectedSite').append("<option value=''>Loading Sites ...</option>");
         $.ajax({
             method: "GET",
-            url: "/sites/" + $('#selectedVO').val(),
+            url: "{{ url_for('getsites' }}/" + $('#selectedVO').val(),
             success : function(text)
             {
                 $('#selectedSite').empty();
@@ -35,7 +35,7 @@
         $('#selectedImage').append("<option value=''>Loading Images ...</option>");
         $.ajax({
             method: "GET",
-            url: "/images/" + $("#selectedSite").val() + "/" + $('#selectedVO').val(),
+            url: "{{ url_for('getimages' }}/" + $("#selectedSite").val() + "/" + $('#selectedVO').val(),
             success : function(text)
             {
                 $('#selectedImage').empty();
@@ -52,20 +52,20 @@
 
    <div id="manschedConf" class="form-group">
        <p></p>
-       <label>Select a VO:</label>
+       <label>Select VO:</label>
        <select class="js-example-basic-single js-states form-control" id="selectedVO" name="extra_opts.selectedVO" onchange="loadSites()">
          <option name="selectedImage" value=""> - Select one VO - </option>
        {% for vo in vos %}
            <option name="selectedVO" value={{vo}}>{{vo}}</option>
        {% endfor %}
        </select>
-       <label>Select a provider:</label>
+       <label>Select provider:</label>
        <select class="js-example-basic-single js-states form-control" id="selectedSite" name="extra_opts.selectedSite" onchange="loadImages()">
-        <option name="selectedImage" value="">Select a VO</option>
+        <option name="selectedImage" value="">Select VO</option>
        </select>
-       <label>Select a image:</label>
+       <label>Select image:</label>
        <select class="js-example-basic-single js-states form-control" id="selectedImage" name="extra_opts.selectedImage" onchange="activateSubmit()">
-            <option name="selectedImage" value="">Select a provider</option>
+            <option name="selectedImage" value="">Select provider</option>
         </select>
    </div>
    <br>
