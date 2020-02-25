@@ -30,7 +30,6 @@ Create the `config.json` file (see the [example](app/config-sample.json)) settin
 | OIDC_BASE_URL | OIDC service URL | Y | N/A
 | OIDC_GROUP_MEMBERSHIP | List of OIDC groups to be checked for allowing access | N | []
 | OIDC_SCOPES | OIDC scopes | Y | N/A
-| IM_URL | IM Service URL | Y | N/A
 | TOSCA_TEMPLATES_DIR | Absolute path where the TOSCA templates are stored | Y | N/A
 | IM_URL | Infrastructure Manager service URL | Y | N/A
 | SUPPORT_EMAIL | Email address that will be shown in case of errors | N | ""
