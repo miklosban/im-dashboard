@@ -301,7 +301,7 @@ def infoutputs(infid=None):
       outputs = response.json()["outputs"]
       for elem in outputs:
           if isinstance(outputs[elem], str) and (outputs[elem].startswith('http://') or outputs[elem].startswith('https://')):
-              outputs[elem] = Markup("<a href='%s'>%s</a>" % (outputs[elem], outputs[elem]))
+              outputs[elem] = Markup("<a href='%s' target='_blank'>%s</a>" % (outputs[elem], outputs[elem]))
 
     return render_template('outputs.html', infid=infid, outputs=outputs)
 
