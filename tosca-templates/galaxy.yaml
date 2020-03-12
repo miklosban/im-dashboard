@@ -17,10 +17,12 @@ topology_template:
       type: integer
       description: Number of cpus required for the Galaxy server
       default: 1
+      - valid_values: [ 1, 2, 4, 8 ]
     memory_size:
       type: string
       description: RAM memory required for the Galaxy server
-      default: 1 GB
+      default: 4 GB
+      - valid_values: [ 4 GB, 8 GB, 16 GB ]
 
     admin_email:
       type: string
@@ -77,4 +79,4 @@ topology_template:
 
   outputs:
     galaxy_url:
-      value: { concat: [ 'http://', get_attribute: [ galaxy_server, public_address, 0 ], '/galaxy' ] }
+      value: { concat: [ 'http://', get_attribute: [ galaxy_server, public_address, 0 ], ':8443/' ] }
