@@ -128,7 +128,7 @@ topology_template:
 
   outputs:
     galaxy_url:
-      value: { concat: [ 'http://', get_attribute: [ lrms_server, public_address, 0 ], ':8443/' ] }
+      value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], ':8443/' ] }
     cluster_ip:
       value: { get_attribute: [ lrms_server, public_address, 0 ] }
     cluster_creds:
