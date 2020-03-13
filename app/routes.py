@@ -370,6 +370,8 @@ def add_auth_to_template(template, auth_data):
 
     for node in list(template['topology_template']['node_templates'].values()):
         if node["type"] == "tosca.nodes.ec3.ElasticCluster":
+            if "properties" not in node:
+                node["properties"] = {}
             node["properties"]["im_auth"] = auth_data
 
     app.logger.debug(yaml.dump(template, default_flow_style=False))
