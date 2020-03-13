@@ -365,6 +365,17 @@ def add_image_to_template(template, image):
 
     return template
 
+def add_auth_to_template(template, auth_data):
+    # Add the auth_data ElasticCluster node
+
+    for node in list(template['topology_template']['node_templates'].values()):
+        if node["type"] == "tosca.nodes.ec3.ElasticCluster":
+            node["properties"]["im_auth"] = auth_data
+
+    app.logger.debug(yaml.dump(template, default_flow_style=False))
+
+    return template
+
 def set_inputs_to_template(template, inputs):
     # Add the image to all compute nodes
 
@@ -393,6 +404,7 @@ def set_inputs_to_template(template, inputs):
 def createdep():
 
   access_token = oidc_blueprint.session.token['access_token']
+  auth_data = utils.getUserAuthData(access_token)
 
   app.logger.debug("Form data: " + json.dumps(request.form.to_dict()))
 
@@ -407,6 +419,8 @@ def createdep():
                                     form_data['extra_opts.selectedVO'])
       template = add_image_to_template(template, image)
 
+      template = add_auth_to_template(template, auth_data)
+
       inputs = { k:v for (k,v) in form_data.items() if not k.startswith("extra_opts.") }
 
       app.logger.debug("Parameters: " + json.dumps(inputs))
@@ -415,7 +429,6 @@ def createdep():
 
       payload = yaml.dump(template,default_flow_style=False, sort_keys=False)
 
-  auth_data = utils.getUserAuthData(access_token)
   headers = {"Authorization": auth_data, "Content-Type": "text/yaml"}
 
   url = "%s/infrastructures?async=1" % settings.imUrl
