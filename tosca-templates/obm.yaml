@@ -1,0 +1,78 @@
+  tosca_definitions_version: tosca_simple_yaml_1_0
+  
+  imports:
+    - ec3_custom_types: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/custom_types.yaml
+  
+  description: TOSCA template for deploying an instance for OpenBioMaps using the type SoftwareComponent
+  
+  topology_template:
+    inputs:
+      number_cpus:
+        type: integer
+        description: number of cpus required for the instance
+        default: 1
+        constraints:
+        - valid_values: [ 1, 2, 4, 8, 16, 32 ]
+      memory_size:
+        type: string
+        description: ram memory required for the instance
+        default: 2 GB
+        constraints:
+        - valid_values: [ 2 GB, 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB ]
+      gis_pass:
+        type: string
+        description: GIS Data PostGreSQL password
+        default: gis_pass
+        required: yes
+      biomaps_pass:
+        type: string
+        description: Biomaps PostGreSQL password
+        default: biomaps_pass
+        required: yes
+
+    node_templates:
+  
+      obm:
+        type: tosca.nodes.SoftwareComponent
+        requirements:
+          - host: obm_server 
+        artifacts:
+          galaxy_role:
+            file: grycap.docker
+            type: tosca.artifacts.AnsibleGalaxy.role
+        interfaces:
+          Standard:
+            configure:
+              implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/obm_install.yml
+
+      obm_server:
+        type: tosca.nodes.indigo.Compute
+        capabilities:
+          endpoint:
+            properties:
+              network_name: PUBLIC
+              ports:
+                ssh_port:
+                  protocol: tcp
+                  source: 22
+                obm_port:
+                  protocol: tcp
+                  source: 9890
+          host:
+           properties:
+             num_cpus: { get_input: number_cpus }
+             mem_size: { get_input: memory_size }
+          os:
+            properties:
+              type: linux 
+              distribution: ubuntu 
+              version: 16.04
+              image: one://onecloud.i3m.upv.es/444
+  
+    outputs:
+      instance_ip:
+        value: { get_attribute: [ obm_server, public_address, 0 ] }
+      instance_creds:
+        value: { get_attribute: [ obm_server, endpoint, credential, 0 ] }
+      galaxy_url:
+        value: { concat: [ 'http://', get_attribute: [ obm_server, public_address, 0 ], ':9890/' ] }
