@@ -19,16 +19,6 @@
         default: 2 GB
         constraints:
         - valid_values: [ 2 GB, 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB ]
-      gis_pass:
-        type: string
-        description: GIS Data PostGreSQL password
-        default: gis_pass
-        required: yes
-      biomaps_pass:
-        type: string
-        description: Biomaps PostGreSQL password
-        default: biomaps_pass
-        required: yes
 
     node_templates:
   
