@@ -5,6 +5,11 @@
   
   description: TOSCA template for deploying an instance for OpenBioMaps using the type SoftwareComponent
   
+  metadata:
+    display_name: Deploy a OpenBioMaps portal
+    icon: https://openbiomaps.org/img/OpenBioMaps.png
+    tag: VM
+
   topology_template:
     inputs:
       number_cpus:
@@ -54,15 +59,8 @@
              mem_size: { get_input: memory_size }
           os:
             properties:
-              type: linux 
-              distribution: ubuntu 
-              version: 16.04
-              image: one://onecloud.i3m.upv.es/444
+              type: linux
   
     outputs:
-      instance_ip:
-        value: { get_attribute: [ obm_server, public_address, 0 ] }
-      instance_creds:
-        value: { get_attribute: [ obm_server, endpoint, credential, 0 ] }
-      galaxy_url:
+      obm_url:
         value: { concat: [ 'http://', get_attribute: [ obm_server, public_address, 0 ], ':9890/' ] }
