@@ -24,11 +24,20 @@
         default: 2 GB
         constraints:
         - valid_values: [ 2 GB, 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB ]
+      disk_size:
+        type: string
+        description: Size of the disk to be attached to the instance
+        default: 10 GB
 
     node_templates:
-  
+
       obm:
-        type: tosca.nodes.SoftwareComponent
+        type: tosca.nodes.WebServer
+        capabilities:
+          admin_endpoint:
+            properties:
+              port: 9890
+              protocol: tcp
         requirements:
           - host: obm_server 
         artifacts:
@@ -50,9 +59,6 @@
                 ssh_port:
                   protocol: tcp
                   source: 22
-                obm_port:
-                  protocol: tcp
-                  source: 9890
           host:
            properties:
              num_cpus: { get_input: number_cpus }
@@ -60,7 +66,20 @@
           os:
             properties:
               type: linux
-  
+        requirements:
+        - local_storage:
+            node: my_block_storage           
+            relationship:
+              type: AttachesTo
+              properties:
+                location: /mnt/disk
+                # device: hdb
+
+      my_block_storage:
+        type: tosca.nodes.BlockStorage
+        properties:
+         size: { get_input: disk_size }
+
     outputs:
       obm_url:
         value: { concat: [ 'http://', get_attribute: [ obm_server, public_address, 0 ], ':9890/' ] }
