@@ -544,7 +544,7 @@ def addresources(infid=None):
                 if vm_num > 0:
                     radl.deploys.append(deploy(system.name, vm_num))
         except Exception as ex:
-            flash("Error parsing RADL: \n%s" % str(ex), 'error')
+            flash("Error parsing RADL: \n%s\n%s" % (str(ex), response.text), 'error')
 
         url = "%s/infrastructures/%s" % (settings.imUrl, infid)
         response = requests.post(url, headers=headers)
