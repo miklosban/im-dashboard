@@ -521,7 +521,7 @@ def addresourcesform(infid=None):
         return redirect(url_for('showinfrastructures'))
 
 
-@app.route('/addresources/<infid>')
+@app.route('/addresources/<infid>', methods=['POST'])
 @authorized_with_valid_token
 def addresources(infid=None):
 
