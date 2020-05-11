@@ -34,8 +34,8 @@
             <tbody>
                 {% for system in systems %}
                 <tr>
-                    <td>{{ system.name }}</td>
-                    <td>
+                    <td class="col-sm-3">{{ system.name }}</td>
+                    <td class="col-sm-2">
                         <input type="text" class="form-control" id="{{system.name}}_num" name="{{system.name}}_num" value="0" aria-describedby="Numner of nodes to add"/>
                     </td>
                 </tr>
