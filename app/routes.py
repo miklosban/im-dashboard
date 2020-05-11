@@ -528,7 +528,7 @@ def addresources(infid=None):
     access_token = oidc_blueprint.session.token['access_token']
 
     auth_data = utils.getUserAuthData(access_token)
-    headers = {"Authorization": auth_data, "Accept": "application/json"}
+    headers = {"Authorization": auth_data, "Accept": "text/plain"}
 
     form_data = request.form.to_dict()
 
