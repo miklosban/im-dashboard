@@ -546,11 +546,13 @@ def addresources(infid=None):
         except Exception as ex:
             flash("Error parsing RADL: \n%s\n%s" % (str(ex), response.text), 'error')
 
+        headers = {"Authorization": auth_data}
         url = "%s/infrastructures/%s" % (settings.imUrl, infid)
         response = requests.post(url, headers=headers, data=str(radl))
 
         if response.ok:
-            flash("Nodes added successfully", 'info')
+            num = len(response.json()["uri-list"])
+            flash("%d nodes added successfully" % num, 'info')
         else:
             flash("Error adding nodesL: \n%s" % (response.text), 'error')
         
