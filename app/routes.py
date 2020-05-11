@@ -547,10 +547,14 @@ def addresources(infid=None):
             flash("Error parsing RADL: \n%s\n%s" % (str(ex), response.text), 'error')
 
         url = "%s/infrastructures/%s" % (settings.imUrl, infid)
-        response = requests.post(url, headers=headers)
+        response = requests.post(url, headers=headers, data=str(radl))
 
         if response.ok:
             flash("Nodes added successfully", 'info')
+        else:
+            flash("Error adding nodesL: \n%s" % (response.text), 'error')
+        
+        return redirect(url_for('showinfrastructures'))
     else:
         flash("Error getting RADL: \n%s" % (response.text), 'error')
         return redirect(url_for('showinfrastructures'))
