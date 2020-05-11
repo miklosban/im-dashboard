@@ -7,6 +7,8 @@ import yaml
 import io, os, sys
 from functools import wraps
 from urllib.parse import urlparse
+from radl import radl_parse
+from radl.radl import deploy
 
 app.jinja_env.filters['tojson_pretty'] = utils.to_pretty_json
 
@@ -493,6 +495,72 @@ def delete_creds():
         flash("Error deleting credentials %s!" % ex, 'error')
     
     return redirect(url_for('manage_creds'))
+
+
+@app.route('/addresourcesform/<infid>')
+@authorized_with_valid_token
+def addresourcesform(infid=None):
+
+    access_token = oidc_blueprint.session.token['access_token']
+
+    auth_data = utils.getUserAuthData(access_token)
+    headers = {"Authorization": auth_data, "Accept": "text/plain"}
+
+    url = "%s/infrastructures/%s/radl" % (settings.imUrl, infid)
+    response = requests.get(url, headers=headers)
+
+    if response.ok:
+        try:
+            radl = radl_parse.parse_radl(response.text)
+        except Exception as ex:
+            flash("Error parsing RADL: \n%s" % str(ex), 'error')
+
+        return render_template('addresource.html', infid=infid, systems=radl.systems)
+    else:
+        flash("Error getting RADL: \n%s" % (response.text), 'error')
+        return redirect(url_for('showinfrastructures'))
+
+
+@app.route('/addresources/<infid>', methods=['POST'])
+@authorized_with_valid_token
+def addresources(infid=None):
+
+    access_token = oidc_blueprint.session.token['access_token']
+
+    auth_data = utils.getUserAuthData(access_token)
+    headers = {"Authorization": auth_data, "Accept": "text/plain"}
+
+    form_data = request.form.to_dict()
+
+    url = "%s/infrastructures/%s/radl" % (settings.imUrl, infid)
+    response = requests.get(url, headers=headers)
+
+    if response.ok:
+        try:
+            radl = radl_parse.parse_radl(response.text)
+            radl.deploys = []
+            for system in radl.systems:
+                vm_num = int(form_data["%s_num" % system.name])
+                if vm_num > 0:
+                    radl.deploys.append(deploy(system.name, vm_num))
+        except Exception as ex:
+            flash("Error parsing RADL: \n%s\n%s" % (str(ex), response.text), 'error')
+
+        headers = {"Authorization": auth_data, "Accept": "application/json"}
+        url = "%s/infrastructures/%s" % (settings.imUrl, infid)
+        response = requests.post(url, headers=headers, data=str(radl))
+
+        if response.ok:
+            num = len(response.json()["uri-list"])
+            flash("%d nodes added successfully" % num, 'info')
+        else:
+            flash("Error adding nodesL: \n%s" % (response.text), 'error')
+        
+        return redirect(url_for('showinfrastructures'))
+    else:
+        flash("Error getting RADL: \n%s" % (response.text), 'error')
+        return redirect(url_for('showinfrastructures'))
+
 
 @app.route('/logout')
 def logout():

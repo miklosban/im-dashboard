@@ -76,6 +76,7 @@
                           <span class="sr-only">Toggle Dropdown</span>
                         </button>
                         <div class="dropdown-menu">
+                          <a class="dropdown-item" href="{{ url_for('addresourcesform', infid=infId) }}"><span class="fas fa-plus mr-2 grey-text"></span>Add nodes</a>
                           <a class="dropdown-item" href="{{ url_for('template', infid=infId) }}"><span class="fas fa-search mr-2 grey-text"></span>Show template</a>
                           <a class="dropdown-item" href="{{ url_for('inflog', infid=infId) }}"><span class="fas fa-file-alt mr-2 grey-text"></span>Log</a>
                           <a class="dropdown-item" href="{{ url_for('infoutputs', infid=infId) }}"><span class="fas fa-file-export mr-2 grey-text"></span>Outputs</a>
