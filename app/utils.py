@@ -45,7 +45,7 @@ def get_site_images(site_name, vo, access_token):
         images = driver.list_images()
         return [(image.name, image.id) for image in images]
     except Exception as ex:
-        return ["Error loadins site images!", "Error loadins site images!"]
+        return [("Error loadins site images!", "Error loadins site images!")]
 
 
 def getUserVOs(entitlements):

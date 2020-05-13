@@ -34,7 +34,7 @@
                 <tr>
                   <td>{{ field }}</td>
                   <td>
-                    {% if "a href=" in value  %}
+                    {% if value and "a href=" in value  %}
                     {{ value }}
                     {% else %}
                     <pre>{{ value | tojson_pretty() | safe | replace("\\n", "\n") }}</pre>

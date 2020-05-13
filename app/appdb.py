@@ -48,7 +48,11 @@ def get_sites(vo=None):
         return []
 
     providersID = []
-    for site in data['appdb:site']:
+    if isinstance(data['appdb:site'], list):
+        sites = data['appdb:site']
+    else:
+        sites = [data['appdb:site']]
+    for site in sites:
         if 'site:service' in site:
             if isinstance(site['site:service'], list):
                 for service in site['site:service']:

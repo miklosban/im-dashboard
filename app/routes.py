@@ -82,7 +82,16 @@ def home():
                 raise Forbidden(description=message)
 
         session['userid'] = account_info_json['sub']
-        session['username'] = account_info_json['name']
+        if 'name' in account_info_json:
+            session['username'] = account_info_json['name']
+        else:
+            session['username'] = ""
+            if 'given_name' in account_info_json:
+                session['username'] = account_info_json['given_name']
+            if 'family_name' in account_info_json:
+                session['username'] += " " . account_info_json['family_name']
+            if session['username'] = "":
+                session['username'] = account_info_json['sub']
         if 'email' in account_info_json:
             session['gravatar'] = utils.avatar(account_info_json['email'], 26)
         else:
