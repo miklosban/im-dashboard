@@ -78,14 +78,21 @@
        <select class="js-example-basic-single js-states form-control" id="selectedSite" name="extra_opts.selectedSite" onchange="loadImages();loadSiteImages();">
         <option name="selectedImage" value="">Select VO</option>
        </select>
-       <label>Select AppDB image:</label>
-       <select class="js-example-basic-single js-states form-control" id="selectedImage" name="extra_opts.selectedImage" onchange="activateSubmit()">
+       <label>Select only one of this options AppDB or Site image:</label>
+       <div class="form-row">
+        <div class="form-group col-md-6">
+        <label>Select AppDB image:</label>
+        <select class="js-example-basic-single js-states form-control" id="selectedImage" name="extra_opts.selectedImage" onchange="activateSubmit()">
             <option name="selectedImage" value="">Select provider</option>
         </select>
+        </div>
+        <div class="form-group col-md-6">
         <label>Select Site image:</label>
         <select class="js-example-basic-single js-states form-control" id="selectedSiteImage" name="extra_opts.selectedSiteImage" onchange="activateSubmit()">
-             <option name="selectedSiteImage" value="">Select provider</option>
-         </select>
+            <option name="selectedSiteImage" value="">Select provider</option>
+        </select>
+        </div>
+       </div>
    </div>
    <br>
 

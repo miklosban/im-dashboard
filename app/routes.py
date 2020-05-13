@@ -426,9 +426,12 @@ def createdep():
           image = "appdb://%s/%s?%s" % (form_data['extra_opts.selectedSite'],
                                         form_data['extra_opts.selectedImage'],
                                         form_data['extra_opts.selectedVO'])
-      else:
+      elif form_data['extra_opts.selectedSiteImage'] != "":
           site_url = utils.get_ost_image_url(form_data['extra_opts.selectedSite'])
           image = "ost://%s/%s" % (site_url, form_data['extra_opts.selectedSiteImage'])
+      else:
+          flash("No correct image selected.", "error")
+          return redirect(url_for('showinfrastructures'))
 
       template = add_image_to_template(template, image)
 
