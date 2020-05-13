@@ -3,7 +3,7 @@ from flask import flash
 from app import appdb, cred
 from fnmatch import fnmatch
 from hashlib import md5
-from urlparse import urlparse
+from urllib.parse import urlparse
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
