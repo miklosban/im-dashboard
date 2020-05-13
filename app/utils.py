@@ -3,12 +3,50 @@ from flask import flash
 from app import appdb, cred
 from fnmatch import fnmatch
 from hashlib import md5
+from urlparse import urlparse
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
+from libcloud.compute.types import Provider
+from libcloud.compute.providers import get_driver
+
+import libcloud.security
+libcloud.security.VERIFY_SSL_CERT = False
+import urllib3
+urllib3.disable_warnings(InsecureRequestWarning)
 
 SITE_LIST = {}
 LAST_UPDATE = 0
 CACHE_DELAY = 3600
+
+
+def get_ost_image_url(site_name):
+    sites = getCachedSiteList()
+    site_url, _ = sites[site_name]
+    return urlparse(site_url)[1]
+
+def get_site_images(site_name, vo, access_token):
+    try:
+        domain = None
+        creds = cred.get_cred(site_name)
+        if creds and "project" in creds and creds["project"]:
+            domain = creds["project"]
+
+        sites = getCachedSiteList()
+        site_url, _ = sites[site_name]
+
+        OpenStack = get_driver(Provider.OPENSTACK)
+        driver = OpenStack('egi.eu', access_token, 
+                        ex_tenant_name='openid',
+                        ex_force_auth_url=site_url,
+                        ex_force_auth_version='3.x_oidc_access_token',
+                        ex_domain_name=domain)
+
+        images = driver.list_images()
+        return [(image.name, image.id) for image in images]
+    except Exception as ex:
+        return ["Error loadins site images!", "Error loadins site images!"]
+
 
 def getUserVOs(entitlements):
     vos = []
@@ -17,12 +55,11 @@ def getUserVOs(entitlements):
             vos.append(elem[22:22 + elem[22:].find(':')])
     return vos
 
-def getUserAuthData(access_token):
+def getCachedSiteList():
     global SITE_LIST
     global LAST_UPDATE
     global CACHE_DELAY
 
-    res = "type = InfrastructureManager; token = %s" % access_token
     now = int(time.time())
     if now - LAST_UPDATE > CACHE_DELAY:
         LAST_UPDATE = now
@@ -30,9 +67,19 @@ def getUserAuthData(access_token):
 
     if not SITE_LIST:
         flash("Error retrieving site list", 'warning')
+        return []
+    else:
+        return SITE_LIST
+
+def getUserAuthData(access_token):
+    global SITE_LIST
+    global LAST_UPDATE
+    global CACHE_DELAY
+
+    res = "type = InfrastructureManager; token = %s" % access_token
 
     cont = 0
-    for site_name, (site_url, _) in SITE_LIST.items():
+    for site_name, (site_url, _) in getCachedSiteList().items():
         cont += 1
         creds = cred.get_cred(site_name)
         res += "\\nid = ost%s; type = OpenStack; username = egi.eu; tenant = openid; auth_version = 3.x_oidc_access_token;" % cont

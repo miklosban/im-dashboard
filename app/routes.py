@@ -352,8 +352,12 @@ def getsites(vo=None):
 @app.route('/images/<site>/<vo>')
 def getimages(site=None, vo=None):
     res = ""
-    for image in appdb.get_images(site, vo):
-        res += '<option name="selectedImage" value=%s>%s</option>' % (image, image)
+    if vo == "local":
+        for image_name, image_id in utils.get_site_images(site, vo, access_token):
+            res += '<option name="selectedSiteImage" value=%s>%s</option>' % (image_id, image_name)
+    else:
+        for image in appdb.get_images(site, vo):
+            res += '<option name="selectedImage" value=%s>%s</option>' % (image, image)
     return res
 
 def add_image_to_template(template, image):
@@ -417,10 +421,14 @@ def createdep():
 
       form_data = request.form.to_dict()
 
-#      if form_data['extra_opts.schedtype'] == "man":
-      image = "appdb://%s/%s?%s" % (form_data['extra_opts.selectedSite'],
-                                    form_data['extra_opts.selectedImage'],
-                                    form_data['extra_opts.selectedVO'])
+      if form_data['extra_opts.selectedImage'] != "":
+          image = "appdb://%s/%s?%s" % (form_data['extra_opts.selectedSite'],
+                                        form_data['extra_opts.selectedImage'],
+                                        form_data['extra_opts.selectedVO'])
+      else:
+          site_url = get_ost_image_url(form_data['extra_opts.selectedSite'])
+          image = "ost://%s/%s" % (site_url, form_data['extra_opts.selectedImage'])
+
       template = add_image_to_template(template, image)
 
       template = add_auth_to_template(template, auth_data)
