@@ -90,7 +90,7 @@ def home():
                 session['username'] = account_info_json['given_name']
             if 'family_name' in account_info_json:
                 session['username'] += " " . account_info_json['family_name']
-            if session['username'] = "":
+            if session['username'] == "":
                 session['username'] = account_info_json['sub']
         if 'email' in account_info_json:
             session['gravatar'] = utils.avatar(account_info_json['email'], 26)
