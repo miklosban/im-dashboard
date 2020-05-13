@@ -428,7 +428,7 @@ def createdep():
                                         form_data['extra_opts.selectedVO'])
       else:
           site_url = utils.get_ost_image_url(form_data['extra_opts.selectedSite'])
-          image = "ost://%s/%s" % (site_url, form_data['extra_opts.selectedImage'])
+          image = "ost://%s/%s" % (site_url, form_data['extra_opts.selectedSiteImage'])
 
       template = add_image_to_template(template, image)
 
