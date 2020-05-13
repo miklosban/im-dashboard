@@ -353,6 +353,7 @@ def getsites(vo=None):
 def getimages(site=None, vo=None):
     res = ""
     if vo == "local":
+        access_token = oidc_blueprint.session.token['access_token']
         for image_name, image_id in utils.get_site_images(site, vo, access_token):
             res += '<option name="selectedSiteImage" value=%s>%s</option>' % (image_id, image_name)
     else:
