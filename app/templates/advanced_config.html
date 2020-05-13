@@ -45,6 +45,21 @@
         });
     }
 
+    function loadSiteImages() {
+        $('#selectedSiteImage').empty();
+        $('#selectedSiteImage').append("<option value=''>Loading Images ...</option>");
+        $.ajax({
+            method: "GET",
+            url: "{{ url_for('home') }}images/" + $("#selectedSite").val() + "/local",
+            success : function(text)
+            {
+                $('#selectedSiteImage').empty();
+                $('#selectedSiteImage').append("<option value=''> - Select one image - </option>");
+                $('#selectedSiteImage').append(text);
+            }
+        });
+    }
+
     function activateSubmit() {
         $(".submitBtn").attr("disabled", false);
     }
@@ -60,13 +75,17 @@
        {% endfor %}
        </select>
        <label>Select provider:</label>
-       <select class="js-example-basic-single js-states form-control" id="selectedSite" name="extra_opts.selectedSite" onchange="loadImages()">
+       <select class="js-example-basic-single js-states form-control" id="selectedSite" name="extra_opts.selectedSite" onchange="loadImages();loadSiteImages();">
         <option name="selectedImage" value="">Select VO</option>
        </select>
-       <label>Select image:</label>
+       <label>Select AppDB image:</label>
        <select class="js-example-basic-single js-states form-control" id="selectedImage" name="extra_opts.selectedImage" onchange="activateSubmit()">
             <option name="selectedImage" value="">Select provider</option>
         </select>
+        <label>Select Site image:</label>
+        <select class="js-example-basic-single js-states form-control" id="selectedSiteImage" name="extra_opts.selectedSiteImage" onchange="activateSubmit()">
+             <option name="selectedSiteImage" value="">Select provider</option>
+         </select>
    </div>
    <br>
 
