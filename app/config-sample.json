@@ -3,7 +3,7 @@
     "OIDC_CLIENT_SECRET": "my_client_secret",
     "OIDC_BASE_URL": "https://aai-dev.egi.eu/oidc",
     "OIDC_GROUP_MEMBERSHIP": [  ],
-    "OID_SCOPES": "openid email profile offline_access eduperson_entitlement",
+    "OIDC_SCOPES": "openid email profile offline_access eduperson_entitlement",
     "IM_URL": "https://appsgrycap.i3m.upv.es:31443/im",
     "TOSCA_TEMPLATES_DIR": "/opt/tosca-templates",
     "SUPPORT_EMAIL": "support@example.com",

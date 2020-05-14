@@ -1,6 +1,5 @@
-import requests, json
+import requests
 import xmltodict
-from flask import session
 from urllib.parse import urlparse
 
 APPDB_URL = "https://appdb.egi.eu"
