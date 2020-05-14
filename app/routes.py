@@ -59,7 +59,7 @@ def home():
 
     try:
         account_info = oidc_blueprint.session.get(urlparse(settings.oidcUrl)[2] + "/userinfo")
-    except (InvalidTokenError, TokenExpiredError) as e:
+    except (InvalidTokenError, TokenExpiredError):
         flash("Token expired.", 'warning')
         return redirect(url_for('login'))
 
@@ -89,14 +89,13 @@ def home():
             if 'given_name' in account_info_json:
                 session['username'] = account_info_json['given_name']
             if 'family_name' in account_info_json:
-                session['username'] += " " . account_info_json['family_name']
+                session['username'] += " " + account_info_json['family_name']
             if session['username'] == "":
                 session['username'] = account_info_json['sub']
         if 'email' in account_info_json:
             session['gravatar'] = utils.avatar(account_info_json['email'], 26)
         else:
             session['gravatar'] = utils.avatar(account_info_json['sub'], 26)
-        access_token = oidc_blueprint.token['access_token']
 
         return render_template('portfolio.html', templates=toscaInfo)
     else:

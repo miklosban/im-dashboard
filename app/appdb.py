@@ -81,9 +81,14 @@ def get_sites(vo=None):
 def get_images(name, vo):
     oss = []
     data = appdb_call('/rest/1.0/sites?flt=%%2B%%3Dvo.name:%s&%%2B%%3Dsite.supports:1' % vo)
-    if not data:
+    if not data or 'appdb:site' not in data:
         return []
-    for site in data['appdb:site']:
+
+    if isinstance(data['appdb:site'], list):
+        sites = data['appdb:site']
+    else:
+        sites = [data['appdb:site']]
+    for site in sites:
         if isinstance(site['site:service'], list):
             services = site['site:service']
         else:
