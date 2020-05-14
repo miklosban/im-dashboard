@@ -37,7 +37,7 @@ def check_supported_VOs(site, vo):
                 return True
     return False
 
-def get_sites(vo=None):
+def _get_services(vo=None):
     appdburl = '/rest/1.0/sites'
     if vo:
         appdburl += '?flt=%%2B%%3Dvo.name:%s&%%2B%%3Dsite.supports:1' % vo
@@ -47,18 +47,23 @@ def get_sites(vo=None):
     if not data or 'appdb:site' not in data:
         return []
 
-    providersID = []
     if isinstance(data['appdb:site'], list):
         sites = data['appdb:site']
     else:
         sites = [data['appdb:site']]
+
+    services = []
     for site in sites:
         if 'site:service' in site:
             if isinstance(site['site:service'], list):
-                for service in site['site:service']:
-                    providersID.append(service['@id'])
+                services.extend(site['site:service'])
             else:
-                providersID.append(site['site:service']['@id'])
+                services.append(site['site:service'])
+
+    return services
+
+def get_sites(vo=None):
+    providersID = [service['@id'] for service in _get_services(vo)]
 
     # Get provider metadata
     endpoints = {}
@@ -80,33 +85,19 @@ def get_sites(vo=None):
 
 def get_images(name, vo):
     oss = []
-    data = appdb_call('/rest/1.0/sites?flt=%%2B%%3Dvo.name:%s&%%2B%%3Dsite.supports:1' % vo)
-    if not data or 'appdb:site' not in data:
-        return []
-
-    if isinstance(data['appdb:site'], list):
-        sites = data['appdb:site']
-    else:
-        sites = [data['appdb:site']]
-    for site in sites:
-        if isinstance(site['site:service'], list):
-            services = site['site:service']
-        else:
-            services = [site['site:service']]
-
-        for service in services:
-            try:
-                va_data = appdb_call('/rest/1.0/va_providers/%s' % service['@id'])
-                if ('provider:url' in va_data['virtualization:provider'] and
-                    va_data['virtualization:provider']['@service_type'] == 'org.openstack.nova' and
-                    va_data['virtualization:provider']['provider:name'] == name):
-                    for os_tpl in va_data['virtualization:provider']['provider:image']:
-                        try:
-                            if '@voname' in os_tpl and vo in os_tpl['@voname'] and os_tpl['@archived'] == "false":
-                                oss.append(os_tpl['@appcname'])
-                        except:
-                            continue
-            except:
-                continue
+    for service in _get_services(vo):
+        try:
+            va_data = appdb_call('/rest/1.0/va_providers/%s' % service['@id'])
+            if ('provider:url' in va_data['virtualization:provider'] and
+                va_data['virtualization:provider']['@service_type'] == 'org.openstack.nova' and
+                va_data['virtualization:provider']['provider:name'] == name):
+                for os_tpl in va_data['virtualization:provider']['provider:image']:
+                    try:
+                        if '@voname' in os_tpl and vo in os_tpl['@voname'] and os_tpl['@archived'] == "false":
+                            oss.append(os_tpl['@appcname'])
+                    except:
+                        continue
+        except:
+            continue
 
     return oss

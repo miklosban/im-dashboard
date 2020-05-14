@@ -335,8 +335,6 @@ def infdel(infid=None):
 @authorized_with_valid_token
 def configure():
 
-    access_token = oidc_blueprint.session.token['access_token']
-
     selected_tosca = request.args['selected_tosca']
 
     app.logger.debug("Template: " + json.dumps(toscaInfo[selected_tosca]))
