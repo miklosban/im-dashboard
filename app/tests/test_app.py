@@ -258,3 +258,34 @@ class IMDashboardTests(unittest.TestCase):
         self.assertEqual(302, res.status_code)
         self.assertIn('http://localhost/infrastructures', res.headers['location'])
         self.assertEquals(flash.call_args_list[0][0], ("Infrastructure 'infid' successfuly deleted.", 'info'))
+
+    @patch("app.utils.avatar")
+    def test_configure(self, avatar):
+        self.login(avatar)
+        res = self.client.get('/configure?selected_tosca=simple-node.yml')
+        self.assertEqual(200, res.status_code)
+        self.assertIn(b"Launch a compute node getting the IP and SSH credentials to access via ssh", res.data)
+
+    @patch("app.utils.avatar")
+    @patch("app.appdb.get_sites")
+    def test_sites(self, get_sites, avatar):
+        self.login(avatar)
+        get_sites.return_value = {"SITE_NAME": ("", "")}
+        res = self.client.get('/sites/vo')
+        self.assertEqual(200, res.status_code)
+        self.assertIn(b'<option name="selectedSite" value=SITE_NAME>SITE_NAME</option>', res.data)
+
+    @patch("app.utils.avatar")
+    @patch("app.utils.get_site_images")
+    @patch("app.appdb.get_images")
+    def test_images(self, get_images, get_site_images, avatar):
+        self.login(avatar)
+        get_images.return_value = ["IMAGE"]
+        get_site_images.return_value = [("IMAGE_NAME", "IMAGE_ID")]
+        res = self.client.get('/images/sitename/local')
+        self.assertEqual(200, res.status_code)
+        self.assertIn(b'<option name="selectedSiteImage" value=IMAGE_ID>IMAGE_NAME</option>', res.data)
+        res = self.client.get('/images/sitename/vo')
+        self.assertEqual(200, res.status_code)
+        self.assertIn(b'<option name="selectedImage" value=IMAGE>IMAGE</option>', res.data)
+
