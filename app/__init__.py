@@ -215,6 +215,9 @@ def create_app(oidc_blueprint=None):
         elif op == "terminate":
             url = "%s/infrastructures/%s/vms/%s" % (settings.imUrl, infid, vmid)
             response = requests.delete(url, headers=headers)
+        else:
+            flash("Error: invalid operation: %s." % op, 'error')
+            return redirect(url_for('showinfrastructures'))
 
         if response.ok:
             flash("Operation '%s' successfully made on VM ID: %s" % (op, vmid), 'info')
