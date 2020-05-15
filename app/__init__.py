@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 from radl import radl_parse
 from radl.radl import deploy
 
-def create_app(test_config=None):
+def create_app(oidc_blueprint=None):
     app = Flask(__name__)
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
     app.secret_key="8210f566-4981-11ea-92d1-f079596e599b"
@@ -42,17 +42,18 @@ def create_app(test_config=None):
     oidc_refresh_url=oidc_base_url + '/token'
     oidc_authorization_url=oidc_base_url + '/authorize'
 
-    oidc_blueprint = OAuth2ConsumerBlueprint(
-        "oidc", __name__,
-        client_id=app.config['OIDC_CLIENT_ID'],
-        client_secret=app.config['OIDC_CLIENT_SECRET'],
-        scope=app.config['OIDC_SCOPES'],
-        base_url=oidc_base_url,
-        token_url=oidc_token_url,
-        auto_refresh_url=oidc_refresh_url,
-        authorization_url=oidc_authorization_url,
-        redirect_to='home'
-    )
+    if not oidc_blueprint:
+        oidc_blueprint = OAuth2ConsumerBlueprint(
+            "oidc", __name__,
+            client_id=app.config['OIDC_CLIENT_ID'],
+            client_secret=app.config['OIDC_CLIENT_SECRET'],
+            scope=app.config['OIDC_SCOPES'],
+            base_url=oidc_base_url,
+            token_url=oidc_token_url,
+            auto_refresh_url=oidc_refresh_url,
+            authorization_url=oidc_authorization_url,
+            redirect_to='home'
+        )
     app.register_blueprint(oidc_blueprint, url_prefix="/login")
 
     @app.before_request
