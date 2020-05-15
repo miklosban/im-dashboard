@@ -107,6 +107,23 @@ class IMDashboardTests(unittest.TestCase):
 
         return resp
 
+    def post_response(self, url, params=None, **kwargs):
+        resp = MagicMock()
+        parts = urlparse(url)
+        url = parts[2]
+        params = parts[4]
+
+        resp.status_code = 404
+        resp.ok = False
+
+        if url == "/im/infrastructures":
+            resp.ok = True
+            resp.status_code = 200
+            self.assertIn("appdb://site/image?vo", kwargs["data"])
+            self.assertIn("default: 4", kwargs["data"])
+
+        return resp
+
     def login(self, avatar):
         self.oauth.session.authorized = True
         self.oauth.session.token = {'expires_in': 500, 'access_token': 'token'}
@@ -245,7 +262,6 @@ class IMDashboardTests(unittest.TestCase):
         self.assertIn(b'value', res.data)
         self.assertIn(b"<a href='http://server.com' target='_blank'>http://server.com</a>", res.data)
 
-
     @patch("app.utils.getUserAuthData")
     @patch('requests.delete')
     @patch("app.utils.avatar")
@@ -289,3 +305,17 @@ class IMDashboardTests(unittest.TestCase):
         self.assertEqual(200, res.status_code)
         self.assertIn(b'<option name="selectedImage" value=IMAGE>IMAGE</option>', res.data)
 
+    @patch("app.utils.getUserAuthData")
+    @patch('requests.post')
+    @patch("app.utils.avatar")
+    def test_submit(self, avatar, post, user_data):
+        user_data.return_value = "type = InfrastructureManager; token = access_token"
+        post.side_effect = self.post_response
+        self.login(avatar)
+        params = {'extra_opts.selectedSite': 'site',
+                  'extra_opts.selectedImage': 'image',
+                  'extra_opts.selectedVO': 'vo',
+                  'num_cpus': '4'}
+        res = self.client.post('/submit?template=simple-node.yml', data=params)
+        self.assertEqual(302, res.status_code)
+        self.assertIn('http://localhost/infrastructures', res.headers['location'])
