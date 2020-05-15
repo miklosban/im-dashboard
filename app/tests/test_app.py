@@ -319,3 +319,13 @@ class IMDashboardTests(unittest.TestCase):
         res = self.client.post('/submit?template=simple-node.yml', data=params)
         self.assertEqual(302, res.status_code)
         self.assertIn('http://localhost/infrastructures', res.headers['location'])
+
+    @patch("app.utils.avatar")
+    @patch("app.appdb.get_sites")
+    def test_manage_creds(self, get_sites, avatar):
+        self.login(avatar)
+        get_sites.return_value = {"SITE_NAME": ("SITE_URL", "SITE_STATUS")}
+        res = self.client.get('/manage_creds')
+        self.assertEqual(200, res.status_code)
+        self.assertIn(b'SITE_NAME', res.data)
+        self.assertIn(b'SITE_URL', res.data)

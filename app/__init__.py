@@ -1,30 +1,34 @@
+import requests
+import json
+import yaml
+import io
+import os
+import sys
+import logging
 from werkzeug.contrib.fixers import ProxyFix
 from flask_dance.consumer import OAuth2ConsumerBlueprint
-import logging
 from app.settings import Settings
 from app.cred import Credentials
 from app import utils, appdb
 from oauthlib.oauth2.rfc6749.errors import InvalidTokenError, TokenExpiredError
 from werkzeug.exceptions import Forbidden
 from flask import Flask, json, render_template, request, redirect, url_for, flash, session, Markup
-import requests, json
-import yaml
-import io, os, sys
 from functools import wraps
 from urllib.parse import urlparse
 from radl import radl_parse
 from radl.radl import deploy
 
+
 def create_app(oidc_blueprint=None):
     app = Flask(__name__)
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
-    app.secret_key="8210f566-4981-11ea-92d1-f079596e599b"
+    app.secret_key = "8210f566-4981-11ea-92d1-f079596e599b"
     app.config.from_json('config.json')
     settings = Settings(app.config)
     cred = Credentials(settings.cred_db_url)
 
     toscaTemplates = utils.loadToscaTemplates(settings.toscaDir)
-    toscaInfo = utils.extractToscaInfo(settings.toscaDir,settings.toscaParamsDir,toscaTemplates)
+    toscaInfo = utils.extractToscaInfo(settings.toscaDir, settings.toscaParamsDir, toscaTemplates)
 
     app.jinja_env.filters['tojson_pretty'] = utils.to_pretty_json
     app.logger.debug("TOSCA INFO: " + json.dumps(toscaInfo))
@@ -37,10 +41,10 @@ def create_app(oidc_blueprint=None):
 
     logging.basicConfig(level=numeric_level)
 
-    oidc_base_url=app.config['OIDC_BASE_URL']
-    oidc_token_url=oidc_base_url + '/token'
-    oidc_refresh_url=oidc_base_url + '/token'
-    oidc_authorization_url=oidc_base_url + '/authorize'
+    oidc_base_url = app.config['OIDC_BASE_URL']
+    oidc_token_url = oidc_base_url + '/token'
+    oidc_refresh_url = oidc_base_url + '/token'
+    oidc_authorization_url = oidc_base_url + '/authorize'
 
     if not oidc_blueprint:
         oidc_blueprint = OAuth2ConsumerBlueprint(
@@ -116,7 +120,9 @@ def create_app(oidc_blueprint=None):
                     user_groups = account_info_json['eduperson_entitlement']
                 if not set(settings.oidcGroups).issubset(user_groups):
                     app.logger.debug("No match on group membership. User group membership: " + json.dumps(user_groups))
-                    message = Markup('You need to be a member of the following groups: {0}. <br> Please, visit <a href="{1}">{1}</a> and apply for the requested membership.'.format(json.dumps(settings.oidcGroups), settings.oidcUrl))
+                    message = Markup('You need to be a member of the following groups: {0}. <br>'
+                                     ' Please, visit <a href="{1}">{1}</a> and apply for the requested '
+                                     'membership.'.format(json.dumps(settings.oidcGroups), settings.oidcUrl))
                     raise Forbidden(description=message)
 
             session['userid'] = account_info_json['sub']
@@ -140,11 +146,9 @@ def create_app(oidc_blueprint=None):
             flash("Error getting User info: \n" + account_info.text, 'error')
             return render_template('home.html')
 
-
     @app.route('/vminfo/<infid>/<vmid>')
     @authorized_with_valid_token
     def showvminfo(infid=None, vmid=None):
-
         access_token = oidc_blueprint.session.token['access_token']
 
         auth_data = utils.getUserAuthData(access_token)
@@ -194,15 +198,14 @@ def create_app(oidc_blueprint=None):
 
             for elem in vminfo:
                 if elem.endswith("size") and isinstance(vminfo[elem], int):
-                    vminfo[elem] = "%d GB" % (vminfo[elem]/1073741824)
+                    vminfo[elem] = "%d GB" % (vminfo[elem] / 1073741824)
 
-        return render_template('vminfo.html', infid=infid, vmid=vmid, vminfo=vminfo, state=state, nets=nets, deployment=deployment)
-
+        return render_template('vminfo.html', infid=infid, vmid=vmid, vminfo=vminfo,
+                               state=state, nets=nets, deployment=deployment)
 
     @app.route('/managevm/<op>/<infid>/<vmid>')
     @authorized_with_valid_token
     def managevm(op=None, infid=None, vmid=None):
-
         access_token = oidc_blueprint.session.token['access_token']
 
         auth_data = utils.getUserAuthData(access_token)
@@ -232,7 +235,6 @@ def create_app(oidc_blueprint=None):
     @app.route('/infrastructures')
     @authorized_with_valid_token
     def showinfrastructures():
-
         access_token = oidc_blueprint.session.token['access_token']
 
         auth_data = utils.getUserAuthData(access_token)
@@ -262,11 +264,9 @@ def create_app(oidc_blueprint=None):
 
         return render_template('infrastructures.html', infrastructures=infrastructures)
 
-
     @app.route('/reconfigure/<infid>')
     @authorized_with_valid_token
     def infreconfigure(infid=None):
-
         access_token = oidc_blueprint.session.token['access_token']
         auth_data = utils.getUserAuthData(access_token)
         headers = {"Authorization": auth_data}
@@ -281,11 +281,9 @@ def create_app(oidc_blueprint=None):
 
         return redirect(url_for('showinfrastructures'))
 
-
     @app.route('/template/<infid>')
     @authorized_with_valid_token
     def template(infid=None):
-
         access_token = oidc_blueprint.session.token['access_token']
         auth_data = utils.getUserAuthData(access_token)
         headers = {"Authorization": auth_data}
@@ -300,11 +298,9 @@ def create_app(oidc_blueprint=None):
             template = response.text
         return render_template('deptemplate.html', template=template)
 
-
     @app.route('/log/<infid>')
     @authorized_with_valid_token
     def inflog(infid=None):
-
         access_token = oidc_blueprint.session.token['access_token']
         auth_data = utils.getUserAuthData(access_token)
         headers = {"Authorization": auth_data}
@@ -313,7 +309,7 @@ def create_app(oidc_blueprint=None):
         response = requests.get(url, headers=headers, verify=False)
 
         if not response.ok:
-            log="Not found"
+            log = "Not found"
         else:
             log = response.text
         return render_template('inflog.html', log=log)
@@ -330,7 +326,7 @@ def create_app(oidc_blueprint=None):
         response = requests.get(url, headers=headers, verify=False)
 
         if not response.ok:
-            log="Not found"
+            log = "Not found"
         else:
             log = response.text
         return render_template('inflog.html', log=log, vmid=vmid)
