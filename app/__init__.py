@@ -368,7 +368,9 @@ def create_app(oidc_blueprint=None):
         response = requests.delete(url, headers=headers)
 
         if not response.ok:
-            flash("Error deleting infrastructure: " + response.text, "error");
+            flash("Error deleting infrastructure: " + response.text, "error")
+        else:
+            flash("Infrastructure '%s' successfuly deleted." % infid, "info")
 
         return redirect(url_for('showinfrastructures'))
 

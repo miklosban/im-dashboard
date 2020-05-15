@@ -52,6 +52,22 @@ class IMDashboardTests(unittest.TestCase):
         elif url == "/im/infrastructures/infid/vms/0/stop":
             resp.ok = True
             resp.status_code = 200
+        elif url == "/im/infrastructures/infid/tosca":
+            resp.ok = True
+            resp.status_code = 200
+            resp.text = "TOSCA"
+        elif url == "/im/infrastructures/infid/contmsg":
+            resp.ok = True
+            resp.status_code = 200
+            resp.text = "CONT_MSG"
+        elif url == "/im/infrastructures/infid/vms/0/contmsg":
+            resp.ok = True
+            resp.status_code = 200
+            resp.text = "VM_CONT_MSG"
+        elif url == "/im/infrastructures/infid/outputs":
+            resp.ok = True
+            resp.status_code = 200
+            resp.json.return_value = {"outputs": {"key": "value", "key2": "http://server.com"}}
 
         return resp
 
@@ -67,6 +83,9 @@ class IMDashboardTests(unittest.TestCase):
         if url == "/im/infrastructures/infid/vms/0/stop":
             resp.ok = True
             resp.status_code = 200
+        elif url == "/im/infrastructures/infid/reconfigure":
+            resp.ok = True
+            resp.status_code = 200
 
         return resp
 
@@ -80,6 +99,9 @@ class IMDashboardTests(unittest.TestCase):
         resp.ok = False
 
         if url == "/im/infrastructures/infid/vms/0":
+            resp.ok = True
+            resp.status_code = 200
+        elif url == "/im/infrastructures/infid":
             resp.ok = True
             resp.status_code = 200
 
@@ -162,3 +184,77 @@ class IMDashboardTests(unittest.TestCase):
         self.assertEqual(302, res.status_code)
         self.assertIn('http://localhost/infrastructures', res.headers['location'])
         self.assertEquals(flash.call_args_list[0][0], ("Operation 'terminate' successfully made on VM ID: 0", 'info'))
+
+    @patch("app.utils.getUserAuthData")
+    @patch('requests.put')
+    @patch("app.utils.avatar")
+    @patch("app.flash")
+    def test_reconfigure(self, flash, avatar, put, user_data):
+        user_data.return_value = "type = InfrastructureManager; token = access_token"
+        put.side_effect = self.put_response
+        self.login(avatar)
+        res = self.client.get('/reconfigure/infid')
+        self.assertEqual(302, res.status_code)
+        self.assertIn('http://localhost/infrastructures', res.headers['location'])
+        self.assertEquals(flash.call_args_list[0][0], ("Infrastructure successfuly reconfigured.", 'info'))
+
+    @patch("app.utils.getUserAuthData")
+    @patch('requests.get')
+    @patch("app.utils.avatar")
+    def test_template(self, avatar, get, user_data):
+        user_data.return_value = "type = InfrastructureManager; token = access_token"
+        get.side_effect = self.get_response
+        self.login(avatar)
+        res = self.client.get('/template/infid')
+        self.assertEqual(200, res.status_code)
+        self.assertIn(b'TOSCA', res.data)
+
+    @patch("app.utils.getUserAuthData")
+    @patch('requests.get')
+    @patch("app.utils.avatar")
+    def test_log(self, avatar, get, user_data):
+        user_data.return_value = "type = InfrastructureManager; token = access_token"
+        get.side_effect = self.get_response
+        self.login(avatar)
+        res = self.client.get('/log/infid')
+        self.assertEqual(200, res.status_code)
+        self.assertIn(b'CONT_MSG', res.data)
+
+    @patch("app.utils.getUserAuthData")
+    @patch('requests.get')
+    @patch("app.utils.avatar")
+    def test_vm_log(self, avatar, get, user_data):
+        user_data.return_value = "type = InfrastructureManager; token = access_token"
+        get.side_effect = self.get_response
+        self.login(avatar)
+        res = self.client.get('/vmlog/infid/0')
+        self.assertEqual(200, res.status_code)
+        self.assertIn(b'VM_CONT_MSG', res.data)
+
+    @patch("app.utils.getUserAuthData")
+    @patch('requests.get')
+    @patch("app.utils.avatar")
+    def test_outputs(self, avatar, get, user_data):
+        user_data.return_value = "type = InfrastructureManager; token = access_token"
+        get.side_effect = self.get_response
+        self.login(avatar)
+        res = self.client.get('/outputs/infid')
+        self.assertEqual(200, res.status_code)
+        self.assertIn(b'key', res.data)
+        self.assertIn(b'key2', res.data)
+        self.assertIn(b'value', res.data)
+        self.assertIn(b"<a href='http://server.com' target='_blank'>http://server.com</a>", res.data)
+
+
+    @patch("app.utils.getUserAuthData")
+    @patch('requests.delete')
+    @patch("app.utils.avatar")
+    @patch("app.flash")
+    def test_delete(self, flash, avatar, delete, user_data):
+        user_data.return_value = "type = InfrastructureManager; token = access_token"
+        delete.side_effect = self.delete_response
+        self.login(avatar)
+        res = self.client.get('/delete/infid')
+        self.assertEqual(302, res.status_code)
+        self.assertIn('http://localhost/infrastructures', res.headers['location'])
+        self.assertEquals(flash.call_args_list[0][0], ("Infrastructure 'infid' successfuly deleted.", 'info'))
