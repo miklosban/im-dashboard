@@ -1,6 +1,12 @@
-import json, yaml, requests, os, io, ast, time
+import json
+import yaml
+import requests
+import os
+import io
+import ast
+import time
 from flask import flash
-from app import appdb, cred
+from app import appdb
 from fnmatch import fnmatch
 from hashlib import md5
 from urllib.parse import urlparse
@@ -25,7 +31,8 @@ def get_ost_image_url(site_name):
     site_url, _ = sites[site_name]
     return urlparse(site_url)[1]
 
-def get_site_images(site_name, vo, access_token):
+
+def get_site_images(site_name, vo, access_token, cred):
     try:
         domain = None
         creds = cred.get_cred(site_name)
@@ -36,11 +43,11 @@ def get_site_images(site_name, vo, access_token):
         site_url, _ = sites[site_name]
 
         OpenStack = get_driver(Provider.OPENSTACK)
-        driver = OpenStack('egi.eu', access_token, 
-                        ex_tenant_name='openid',
-                        ex_force_auth_url=site_url,
-                        ex_force_auth_version='3.x_oidc_access_token',
-                        ex_domain_name=domain)
+        driver = OpenStack('egi.eu', access_token,
+                           ex_tenant_name='openid',
+                           ex_force_auth_url=site_url,
+                           ex_force_auth_version='3.x_oidc_access_token',
+                           ex_domain_name=domain)
 
         images = driver.list_images()
         return [(image.name, image.id) for image in images]
@@ -55,6 +62,7 @@ def getUserVOs(entitlements):
         if elem.startswith('urn:mace:egi.eu:group:'):
             vos.append(elem[22:22 + elem[22:].find(':')])
     return vos
+
 
 def getCachedSiteList():
     global SITE_LIST
@@ -72,7 +80,8 @@ def getCachedSiteList():
     else:
         return SITE_LIST
 
-def getUserAuthData(access_token):
+
+def getUserAuthData(access_token, cred):
     global SITE_LIST
     global LAST_UPDATE
     global CACHE_DELAY
@@ -83,12 +92,14 @@ def getUserAuthData(access_token):
     for site_name, (site_url, _) in getCachedSiteList().items():
         cont += 1
         creds = cred.get_cred(site_name)
-        res += "\\nid = ost%s; type = OpenStack; username = egi.eu; tenant = openid; auth_version = 3.x_oidc_access_token;" % cont
+        res += "\\nid = ost%s; type = OpenStack; username = egi.eu; " % cont
+        res += "tenant = openid; auth_version = 3.x_oidc_access_token;"
         res += " host = %s; password = '%s'" % (site_url, access_token)
         if creds and "project" in creds and creds["project"]:
             res += "; domain = %s" % creds["project"]
 
     return res
+
 
 def format_json_radl(vminfo):
     res = {}
@@ -101,67 +112,65 @@ def format_json_radl(vminfo):
                     res[field] = value
     return res
 
+
 def to_pretty_json(value):
     return json.dumps(value, sort_keys=True,
                       indent=4, separators=(',', ': '))
 
+
 def avatar(email, size):
-  digest = md5(email.lower().encode('utf-8')).hexdigest()
-  return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(digest, size)
+    digest = md5(email.lower().encode('utf-8')).hexdigest()
+    return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(digest, size)
 
 
 def getIMVersion(im_url):
-    url = im_url +  "/version"
+    url = im_url + "/version"
     response = requests.get(url)
     return response.text
 
 
 def loadToscaTemplates(directory):
 
-   toscaTemplates = []
-   for path, subdirs, files in os.walk(directory):
-      for name in files:
-           if fnmatch(name, "*.yml") or fnmatch(name, "*.yaml"):
-               # skip hidden files
-               if name[0] != '.':
-                  toscaTemplates.append( os.path.relpath(os.path.join(path, name), directory ))
+    toscaTemplates = []
+    for path, subdirs, files in os.walk(directory):
+        for name in files:
+            if fnmatch(name, "*.yml") or fnmatch(name, "*.yaml"):
+                # skip hidden files
+                if name[0] != '.':
+                    toscaTemplates.append(os.path.relpath(os.path.join(path, name), directory))
 
-   return toscaTemplates
+    return toscaTemplates
 
 
 def extractToscaInfo(toscaDir, tosca_pars_dir, toscaTemplates):
     toscaInfo = {}
     for tosca in toscaTemplates:
-        with io.open( toscaDir + tosca) as stream:
-           template = yaml.full_load(stream)
-    
-           toscaInfo[tosca] = {
-                                "valid": True,
+        with io.open(toscaDir + tosca) as stream:
+            template = yaml.full_load(stream)
+
+            toscaInfo[tosca] = {"valid": True,
                                 "description": "TOSCA Template",
                                 "metadata": {
                                     "icon": "https://cdn4.iconfinder.com/data/icons/mosaicon-04/512/websettings-512.png"
                                 },
                                 "enable_config_form": False,
                                 "inputs": {},
-                                "tabs": {}
-                              }
-    
-           if 'topology_template' not in template:
-               toscaInfo[tosca]["valid"] = False
-    
-           else:
-    
+                                "tabs": {}}
+
+            if 'topology_template' not in template:
+                toscaInfo[tosca]["valid"] = False
+            else:
                 if 'description' in template:
                     toscaInfo[tosca]["description"] = template['description']
-    
+
                 if 'metadata' in template and template['metadata'] is not None:
-                   for k,v in template['metadata'].items():
-                       toscaInfo[tosca]["metadata"][k] = v
-    
+                    for k, v in template['metadata'].items():
+                        toscaInfo[tosca]["metadata"][k] = v
+
                 if 'inputs' in template['topology_template']:
-                   toscaInfo[tosca]['inputs'] = template['topology_template']['inputs']
-    
-                ## add parameters code here
+                    toscaInfo[tosca]['inputs'] = template['topology_template']['inputs']
+
+                # add parameters code here
                 tabs = {}
                 if tosca_pars_dir:
                     tosca_pars_path = tosca_pars_dir + "/"  # this has to be reassigned here because is local.
@@ -181,18 +190,20 @@ def extractToscaInfo(toscaDir, tosca_pars_dir, toscaTemplates):
 
     return toscaInfo
 
+
 def exchange_token_with_audience(oidc_url, client_id, client_secret, oidc_token, audience):
 
-    payload_string = '{ "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange", "audience": "'+audience+'", "subject_token": "'+oidc_token+'", "scope": "openid profile" }'
-    
+    payload_string = ('{ "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange", "audience": "' +
+                      audience + '", "subject_token": "' + oidc_token + '", "scope": "openid profile" }')
+
     # Convert string payload to dictionary
-    payload =  ast.literal_eval(payload_string)
-    
+    payload = ast.literal_eval(payload_string)
+
     oidc_response = requests.post(oidc_url + "/token", data=payload, auth=(client_id, client_secret), verify=False)
-    
+
     if not oidc_response.ok:
-        raise Exception("Error exchanging token: {} - {}".format(oidc_response.status_code, oidc_response.text) )
-    
+        raise Exception("Error exchanging token: {} - {}".format(oidc_response.status_code, oidc_response.text))
+
     deserialized_oidc_response = json.loads(oidc_response.text)
-    
+
     return deserialized_oidc_response['access_token']

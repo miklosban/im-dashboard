@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 from app import create_app
 from mock import patch, MagicMock
 
+
 class IMDashboardTests(unittest.TestCase):
 
     oauth = MagicMock()
@@ -32,22 +33,20 @@ class IMDashboardTests(unittest.TestCase):
             resp.ok = True
             resp.status_code = 200
             resp.text = ""
-            radl =   {
-                        "class": "system",
-                        "cpu.arch": "x86_64",
-                        "cpu.count_min": 1,
-                        "disk.0.image.url": "one://server.com/id",
-                        "disk.0.os.name": "linux",
-                        "id": "front",
-                        "sttate": "configured",
-                        "disk.0.os.credentials.username": "user",
-                        "disk.0.os.credentials.password": "pass",
-                        "memory.size_min": 536870912,
-                        "net_interface.0.connection": "publica",
-                        "net_interface.0.ip": "10.10.10.10",
-                        "provider.type": "OpenNebula",
-                        "provider.host": "server.com"
-                    }
+            radl = {"class": "system",
+                    "cpu.arch": "x86_64",
+                    "cpu.count_min": 1,
+                    "disk.0.image.url": "one://server.com/id",
+                    "disk.0.os.name": "linux",
+                    "id": "front",
+                    "state": "configured",
+                    "disk.0.os.credentials.username": "user",
+                    "disk.0.os.credentials.password": "pass",
+                    "memory.size_min": 536870912,
+                    "net_interface.0.connection": "publica",
+                    "net_interface.0.ip": "10.10.10.10",
+                    "provider.type": "OpenNebula",
+                    "provider.host": "server.com"}
             resp.json.return_value = {"radl": [radl]}
         elif url == "/im/infrastructures/infid/vms/0/stop":
             resp.ok = True
