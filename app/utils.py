@@ -123,12 +123,6 @@ def avatar(email, size):
     return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(digest, size)
 
 
-def getIMVersion(im_url):
-    url = im_url + "/version"
-    response = requests.get(url)
-    return response.text
-
-
 def loadToscaTemplates(directory):
 
     toscaTemplates = []
