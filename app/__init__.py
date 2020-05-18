@@ -592,9 +592,10 @@ def create_app(oidc_blueprint=None):
                 radl = radl_parse.parse_radl(response.text)
                 radl.deploys = []
                 for system in radl.systems:
-                    vm_num = int(form_data["%s_num" % system.name])
-                    if vm_num > 0:
-                        radl.deploys.append(deploy(system.name, vm_num))
+                    if "%s_num" % system.name in form_data:
+                        vm_num = int(form_data["%s_num" % system.name])
+                        if vm_num > 0:
+                            radl.deploys.append(deploy(system.name, vm_num))
             except Exception as ex:
                 flash("Error parsing RADL: \n%s\n%s" % (str(ex), response.text), 'error')
 

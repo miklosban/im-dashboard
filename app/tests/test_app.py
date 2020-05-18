@@ -67,6 +67,10 @@ class IMDashboardTests(unittest.TestCase):
             resp.ok = True
             resp.status_code = 200
             resp.json.return_value = {"outputs": {"key": "value", "key2": "http://server.com"}}
+        elif url == "/im/infrastructures/infid/radl":
+            resp.ok = True
+            resp.status_code = 200
+            resp.text = "system wn ()\nsystem front ()"
 
         return resp
 
@@ -120,6 +124,10 @@ class IMDashboardTests(unittest.TestCase):
             resp.status_code = 200
             self.assertIn("appdb://site/image?vo", kwargs["data"])
             self.assertIn("default: 4", kwargs["data"])
+        elif url == "/im/infrastructures/infid":
+            resp.ok = True
+            resp.status_code = 200
+            resp.json.return_value = {"uri-list": [{"uri": "VM_URI"}]}
 
         return resp
 
@@ -353,3 +361,37 @@ class IMDashboardTests(unittest.TestCase):
         self.assertEqual(302, res.status_code)
         self.assertIn('/manage_creds', res.headers['location'])
         self.assertEquals(flash.call_args_list[0][0], ("Credentials successfully deleted!", 'info'))
+
+    @patch("app.utils.getUserAuthData")
+    @patch('requests.get')
+    @patch("app.utils.avatar")
+    def test_addresourcesform(self, avatar, get, user_data):
+        user_data.return_value = "type = InfrastructureManager; token = access_token"
+        get.side_effect = self.get_response
+        self.login(avatar)
+        res = self.client.get('/addresourcesform/infid')
+        self.assertEqual(200, res.status_code)
+        self.assertIn(b'infid', res.data)
+        self.assertIn(b'wn', res.data)
+        self.assertIn(b'front', res.data)
+
+    @patch("app.utils.getUserAuthData")
+    @patch('requests.get')
+    @patch('requests.post')
+    @patch("app.utils.avatar")
+    @patch("app.flash")
+    def test_addresources(self, flash, avatar, post, get, user_data):
+        user_data.return_value = "type = InfrastructureManager; token = access_token"
+        get.side_effect = self.get_response
+        post.side_effect = self.post_response
+        self.login(avatar)
+        res = self.client.post('/addresources/infid', data={"wn_num": "1"})
+        self.assertEqual(302, res.status_code)
+        self.assertEquals(flash.call_args_list[0][0], ("1 nodes added successfully", 'info'))
+
+    @patch("app.utils.avatar")
+    def test_logot(self, avatar):
+        res = self.login(avatar)
+        res = self.client.get('/logout')
+        self.assertEqual(302, res.status_code)
+    
