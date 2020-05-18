@@ -1,4 +1,4 @@
-from flask import json, session
+from flask import json
 from app.db import DataBase
 
 
@@ -16,10 +16,10 @@ class Credentials:
             raise Exception("Error connecting DB: %s" % self.cred_db_url)
         return db
 
-    def get_cred(self, serviceid):
+    def get_cred(self, serviceid, userid):
         db = self._get_creds_db()
         res = db.select("select data from credentials where userid = %s and serviceid = %s",
-                        (session["userid"], serviceid))
+                        (userid, serviceid))
         db.close()
 
         data = {}
@@ -28,14 +28,14 @@ class Credentials:
 
         return data
 
-    def write_creds(self, serviceid, data):
+    def write_creds(self, serviceid, userid, data):
         db = self._get_creds_db()
         str_data = json.dumps(data)
         db.execute("replace into credentials (data, userid, serviceid) values (%s, %s, %s)",
-                   (str_data, session["userid"], serviceid))
+                   (str_data, userid, serviceid))
         db.close()
 
-    def delete_cred(self, serviceid):
+    def delete_cred(self, serviceid, userid):
         db = self._get_creds_db()
-        db.execute("delete from credentials where userid = %s and serviceid = %s", (session["userid"], serviceid))
+        db.execute("delete from credentials where userid = %s and serviceid = %s", (userid, serviceid))
         db.close()

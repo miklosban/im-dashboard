@@ -520,7 +520,7 @@ def create_app(oidc_blueprint=None):
         if request.method == 'GET':
             res = {}
             try:
-                res = cred.get_cred(serviceid)
+                res = cred.get_cred(serviceid, session["userid"])
             except Exception as ex:
                 flash("Error reading credentials %s!" % ex, 'error')
 
@@ -530,7 +530,7 @@ def create_app(oidc_blueprint=None):
 
             creds = request.form.to_dict()
             try:
-                cred.write_creds(serviceid, creds)
+                cred.write_creds(serviceid, session["userid"], creds)
                 flash("Credentials successfully written!", 'info')
             except Exception as ex:
                 flash("Error writing credentials %s!" % ex, 'error')
@@ -543,7 +543,7 @@ def create_app(oidc_blueprint=None):
 
         serviceid = request.args.get('service_id', "")
         try:
-            cred.delete_cred(serviceid)
+            cred.delete_cred(serviceid, session["userid"])
             flash("Credentials successfully deleted!", 'info')
         except Exception as ex:
             flash("Error deleting credentials %s!" % ex, 'error')

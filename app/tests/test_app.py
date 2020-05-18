@@ -388,9 +388,3 @@ class IMDashboardTests(unittest.TestCase):
         res = self.client.post('/addresources/infid', data={"wn_num": "1"})
         self.assertEqual(302, res.status_code)
         self.assertEquals(flash.call_args_list[0][0], ("1 nodes added successfully", 'info'))
-
-    @patch("app.utils.avatar")
-    def test_logot(self, avatar):
-        res = self.login(avatar)
-        res = self.client.get('/logout')
-        self.assertEqual(302, res.status_code)
