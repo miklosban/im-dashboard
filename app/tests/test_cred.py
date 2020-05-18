@@ -18,17 +18,8 @@
 
 import unittest
 import os
-import xmltodict
 
 from app.cred import Credentials
-from mock import patch, MagicMock
-from urllib.parse import urlparse
-
-
-def read_file_as_string(file_name):
-    tests_path = os.path.dirname(os.path.abspath(__file__))
-    abs_file_path = os.path.join(tests_path, file_name)
-    return open(abs_file_path, 'r').read()
 
 
 class TestCredentials(unittest.TestCase):
@@ -36,7 +27,10 @@ class TestCredentials(unittest.TestCase):
     Class to test the Credentials class
     """
 
-    def setUp(self):
+    def tearDown(self):
+        os.unlink('/tmp/creds.db')
+
+    def test_get_cred(self):
         creds = Credentials("sqlite:///tmp/creds.db")
         res = creds._get_creds_db()
         str_data = '{"project": "project_name"}'
@@ -44,13 +38,20 @@ class TestCredentials(unittest.TestCase):
                     (str_data, "user", "serviceid"))
         res.close()
 
-    def tearDown(self):
-        os.unlink("/tmp/creds.db")
-
-    def test_get_cred(self):
-        creds = Credentials("sqlite:///tmp/creds.db")
         res = creds.get_cred("serviceid", "user")
         self.assertEquals(res, {'project': 'project_name'})
+
+    def test_write_creds(self):
+        creds = Credentials("sqlite:///tmp/creds.db")
+        creds.write_creds("serviceid", "user", {"project": "new_project"})
+        res = creds.get_cred("serviceid", "user")
+        self.assertEquals(res, {"project": "new_project"})
+
+    def test_delete_creds(self):
+        creds = Credentials("sqlite:///tmp/creds.db")
+        creds.delete_cred("serviceid", "user")
+        res = creds.get_cred("serviceid", "user")
+        self.assertEquals(res, {})
 
 
 if __name__ == '__main__':

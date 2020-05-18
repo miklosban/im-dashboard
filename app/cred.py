@@ -11,7 +11,8 @@ class Credentials:
         db = DataBase(self.cred_db_url)
         if db.connect():
             if not db.table_exists("credentials"):
-                db.execute("CREATE TABLE credentials(userid VARCHAR(255), serviceid VARCHAR(255), data LONGBLOB)")
+                db.execute("CREATE TABLE credentials(userid VARCHAR(255), serviceid VARCHAR(255), data LONGBLOB,"
+                           " PRIMARY KEY (userid, serviceid))")
         else:
             raise Exception("Error connecting DB: %s" % self.cred_db_url)
         return db
