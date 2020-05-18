@@ -24,8 +24,11 @@ def get_vo_list():
     vos = []
     data = appdb_call('/rest/1.0/vos')
     if data:
-        for vo in data['vo:vo']:
-            vos.append(vo['@name'])
+        if isinstance(data['vo:vo'], list):
+            for vo in data['vo:vo']:
+                vos.append(vo['@name'])
+        else:
+            vos.append(data['vo:vo']['@name'])
     return vos
 
 
