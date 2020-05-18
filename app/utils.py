@@ -5,7 +5,7 @@ import os
 import io
 import ast
 import time
-from flask import flash, session
+from flask import flash
 from app import appdb
 from fnmatch import fnmatch
 from hashlib import md5
@@ -32,10 +32,10 @@ def get_ost_image_url(site_name):
     return urlparse(site_url)[1]
 
 
-def get_site_images(site_name, vo, access_token, cred):
+def get_site_images(site_name, vo, access_token, cred, userid):
     try:
         domain = None
-        creds = cred.get_cred(site_name, session["userid"])
+        creds = cred.get_cred(site_name, userid)
         if creds and "project" in creds and creds["project"]:
             domain = creds["project"]
 
@@ -81,7 +81,7 @@ def getCachedSiteList():
         return SITE_LIST
 
 
-def getUserAuthData(access_token, cred):
+def getUserAuthData(access_token, cred, userid):
     global SITE_LIST
     global LAST_UPDATE
     global CACHE_DELAY
@@ -91,7 +91,7 @@ def getUserAuthData(access_token, cred):
     cont = 0
     for site_name, (site_url, _) in getCachedSiteList().items():
         cont += 1
-        creds = cred.get_cred(site_name, session["userid"])
+        creds = cred.get_cred(site_name, userid)
         res += "\\nid = ost%s; type = OpenStack; username = egi.eu; " % cont
         res += "tenant = openid; auth_version = 3.x_oidc_access_token;"
         res += " host = %s; password = '%s'" % (site_url, access_token)

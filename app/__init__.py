@@ -151,7 +151,7 @@ def create_app(oidc_blueprint=None):
     def showvminfo(infid=None, vmid=None):
         access_token = oidc_blueprint.session.token['access_token']
 
-        auth_data = utils.getUserAuthData(access_token, cred)
+        auth_data = utils.getUserAuthData(access_token, cred, session["userid"])
         headers = {"Authorization": auth_data, "Accept": "application/json"}
 
         url = "%s/infrastructures/%s/vms/%s" % (settings.imUrl, infid, vmid)
@@ -208,7 +208,7 @@ def create_app(oidc_blueprint=None):
     def managevm(op=None, infid=None, vmid=None):
         access_token = oidc_blueprint.session.token['access_token']
 
-        auth_data = utils.getUserAuthData(access_token, cred)
+        auth_data = utils.getUserAuthData(access_token, cred, session["userid"])
         headers = {"Authorization": auth_data, "Accept": "application/json"}
 
         op = op.lower()
@@ -237,7 +237,7 @@ def create_app(oidc_blueprint=None):
     def showinfrastructures():
         access_token = oidc_blueprint.session.token['access_token']
 
-        auth_data = utils.getUserAuthData(access_token, cred)
+        auth_data = utils.getUserAuthData(access_token, cred, session["userid"])
         headers = {"Authorization": auth_data, "Accept": "application/json"}
 
         url = "%s/infrastructures" % settings.imUrl
@@ -268,7 +268,7 @@ def create_app(oidc_blueprint=None):
     @authorized_with_valid_token
     def infreconfigure(infid=None):
         access_token = oidc_blueprint.session.token['access_token']
-        auth_data = utils.getUserAuthData(access_token, cred)
+        auth_data = utils.getUserAuthData(access_token, cred, session["userid"])
         headers = {"Authorization": auth_data}
 
         url = "%s/infrastructures/%s/reconfigure" % (settings.imUrl, infid)
@@ -285,7 +285,7 @@ def create_app(oidc_blueprint=None):
     @authorized_with_valid_token
     def template(infid=None):
         access_token = oidc_blueprint.session.token['access_token']
-        auth_data = utils.getUserAuthData(access_token, cred)
+        auth_data = utils.getUserAuthData(access_token, cred, session["userid"])
         headers = {"Authorization": auth_data}
 
         url = "%s/infrastructures/%s/tosca" % (settings.imUrl, infid)
@@ -302,7 +302,7 @@ def create_app(oidc_blueprint=None):
     @authorized_with_valid_token
     def inflog(infid=None):
         access_token = oidc_blueprint.session.token['access_token']
-        auth_data = utils.getUserAuthData(access_token, cred)
+        auth_data = utils.getUserAuthData(access_token, cred, session["userid"])
         headers = {"Authorization": auth_data}
 
         url = "%s/infrastructures/%s/contmsg" % (settings.imUrl, infid)
@@ -319,7 +319,7 @@ def create_app(oidc_blueprint=None):
     def vmlog(infid=None, vmid=None):
 
         access_token = oidc_blueprint.session.token['access_token']
-        auth_data = utils.getUserAuthData(access_token, cred)
+        auth_data = utils.getUserAuthData(access_token, cred, session["userid"])
         headers = {"Authorization": auth_data}
 
         url = "%s/infrastructures/%s/vms/%s/contmsg" % (settings.imUrl, infid, vmid)
@@ -336,7 +336,7 @@ def create_app(oidc_blueprint=None):
     def infoutputs(infid=None):
 
         access_token = oidc_blueprint.session.token['access_token']
-        auth_data = utils.getUserAuthData(access_token, cred)
+        auth_data = utils.getUserAuthData(access_token, cred, session["userid"])
         headers = {"Authorization": auth_data}
 
         url = "%s/infrastructures/%s/outputs" % (settings.imUrl, infid)
@@ -358,7 +358,7 @@ def create_app(oidc_blueprint=None):
     def infdel(infid=None):
 
         access_token = oidc_blueprint.session.token['access_token']
-        auth_data = utils.getUserAuthData(access_token, cred)
+        auth_data = utils.getUserAuthData(access_token, cred, session["userid"])
         headers = {"Authorization": auth_data}
 
         url = "%s/infrastructures/%s?async=1" % (settings.imUrl, infid)
@@ -400,7 +400,7 @@ def create_app(oidc_blueprint=None):
         res = ""
         if vo == "local":
             access_token = oidc_blueprint.session.token['access_token']
-            for image_name, image_id in utils.get_site_images(site, vo, access_token, cred):
+            for image_name, image_id in utils.get_site_images(site, vo, access_token, cred, session["userid"]):
                 res += '<option name="selectedSiteImage" value=%s>%s</option>' % (image_id, image_name)
         else:
             for image in appdb.get_images(site, vo):
@@ -457,7 +457,7 @@ def create_app(oidc_blueprint=None):
     def createdep():
 
         access_token = oidc_blueprint.session.token['access_token']
-        auth_data = utils.getUserAuthData(access_token, cred)
+        auth_data = utils.getUserAuthData(access_token, cred, session["userid"])
 
         app.logger.debug("Form data: " + json.dumps(request.form.to_dict()))
 
@@ -556,7 +556,7 @@ def create_app(oidc_blueprint=None):
 
         access_token = oidc_blueprint.session.token['access_token']
 
-        auth_data = utils.getUserAuthData(access_token, cred)
+        auth_data = utils.getUserAuthData(access_token, cred, session["userid"])
         headers = {"Authorization": auth_data, "Accept": "text/plain"}
 
         url = "%s/infrastructures/%s/radl" % (settings.imUrl, infid)
@@ -579,7 +579,7 @@ def create_app(oidc_blueprint=None):
 
         access_token = oidc_blueprint.session.token['access_token']
 
-        auth_data = utils.getUserAuthData(access_token, cred)
+        auth_data = utils.getUserAuthData(access_token, cred, session["userid"])
         headers = {"Authorization": auth_data, "Accept": "text/plain"}
 
         form_data = request.form.to_dict()
