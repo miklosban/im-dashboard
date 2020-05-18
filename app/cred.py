@@ -8,7 +8,7 @@ class Credentials:
         self.cred_db_url = cred_db_url
 
     def _get_creds_db(self):
-        db = DataBase(self.cred_db_url())
+        db = DataBase(self.cred_db_url)
         if db.connect():
             if not db.table_exists("credentials"):
                 db.execute("CREATE TABLE credentials(userid VARCHAR(255), serviceid VARCHAR(255), data LONGBLOB)")

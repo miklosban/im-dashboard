@@ -294,7 +294,7 @@ class IMDashboardTests(unittest.TestCase):
     @patch("app.utils.get_site_images")
     @patch("app.appdb.get_images")
     def test_images(self, get_images, get_site_images, avatar):
-        self.login(avatar)
+        self.login(avatar)  
         get_images.return_value = ["IMAGE"]
         get_site_images.return_value = [("IMAGE_NAME", "IMAGE_ID")]
         res = self.client.get('/images/sitename/local')
@@ -328,3 +328,28 @@ class IMDashboardTests(unittest.TestCase):
         self.assertEqual(200, res.status_code)
         self.assertIn(b'SITE_NAME', res.data)
         self.assertIn(b'SITE_URL', res.data)
+
+    @patch("app.utils.avatar")
+    @patch("app.cred.Credentials.get_cred")
+    @patch("app.flash")
+    def test_write_creds(self, flash, get_cred, avatar):
+        self.login(avatar)
+        get_cred.return_value = {"project": "PROJECT_NAME"}
+        res = self.client.get('/write_creds?service_id=SERVICE_ID')
+        self.assertEqual(200, res.status_code)
+        self.assertIn(b'PROJECT_NAME', res.data)
+        res = self.client.post('/write_creds?service_id=SERVICE_ID', data={"project": "PROJECT_NAME"})
+        self.assertEqual(302, res.status_code)
+        self.assertIn('/manage_creds', res.headers['location'])
+        self.assertEquals(flash.call_args_list[0][0], ("Credentials successfully written!", 'info'))
+
+    @patch("app.utils.avatar")
+    @patch("app.cred.Credentials.delete_cred")
+    @patch("app.flash")
+    def test_delete_creds(self, flash, delete_cred, avatar):
+        self.login(avatar)
+        delete_cred.return_value = True
+        res = self.client.get('/delete_creds?service_id=SERVICE_ID')
+        self.assertEqual(302, res.status_code)
+        self.assertIn('/manage_creds', res.headers['location'])
+        self.assertEquals(flash.call_args_list[0][0], ("Credentials successfully deleted!", 'info'))
