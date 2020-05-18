@@ -48,7 +48,7 @@ class TestAppDB(unittest.TestCase):
             resp.ok = True
             resp.status_code = 200
             resp.text = """<appdb:appdb>
-                            <vo:vo id="15551" name="acc-comp.egi.eu" alias="acc-comp" status="Production" scope="Global">
+                            <vo:vo id="15551" name="acc-comp.egi.eu" alias="acc-comp">
                             </vo:vo>
                             </appdb:appdb>"""
 
@@ -83,7 +83,7 @@ class TestAppDB(unittest.TestCase):
                   </appdb:site>"""
         appdb_call.return_value = xmltodict.parse(site.replace('\n', ''))
         res = appdb._get_services()
-        self.assertEquals(res[0]["@type"],"openstack")
+        self.assertEquals(res[0]["@type"], "openstack")
 
         site = """<appdb:appdb><appdb:site id="80090G0" name="100IT" infrastructure="Production" status="Certified">
                   <site:service type="openstack" id="11541G0" host="devcloud-egi.100percentit.com">
@@ -91,12 +91,12 @@ class TestAppDB(unittest.TestCase):
                   <site:service type="openstack" id="11556G0" host="cloud-egi.100percentit.com">
                   </site:service>
                   </appdb:site>
-                  <appdb:site id="32330G0" name="AEGIS02-RCUB" infrastructure="Production" status="Certified" deleted="false" source="gocdb">
+                  <appdb:site id="32330G0" name="AEGIS02-RCUB" infrastructure="Production">
                   </appdb:site>
                   </appdb:appdb>"""
         appdb_call.return_value = xmltodict.parse(site.replace('\n', ''))["appdb:appdb"]
         res = appdb._get_services()
-        self.assertEquals(res[0]["@type"],"openstack")
+        self.assertEquals(res[0]["@type"], "openstack")
 
     @patch('app.appdb.appdb_call')
     @patch('app.appdb._get_services')
@@ -105,7 +105,7 @@ class TestAppDB(unittest.TestCase):
         va_provider = read_file_as_string("files/va_provider.xml")
         appdb_call.return_value = xmltodict.parse(va_provider.replace('\n', ''))["appdb:appdb"]
         res = appdb.get_sites("vo.access.egi.eu")
-        self.assertEquals(res,{'CESGA': ('https://fedcloud-osservices.egi.cesga.es:5000', '')})
+        self.assertEquals(res, {'CESGA': ('https://fedcloud-osservices.egi.cesga.es:5000', '')})
         self.assertEquals(appdb_call.call_args_list[0][0][0], "/rest/1.0/va_providers/1")
 
     @patch('app.appdb.appdb_call')

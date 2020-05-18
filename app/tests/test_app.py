@@ -302,7 +302,7 @@ class IMDashboardTests(unittest.TestCase):
     @patch("app.utils.get_site_images")
     @patch("app.appdb.get_images")
     def test_images(self, get_images, get_site_images, avatar):
-        self.login(avatar)  
+        self.login(avatar)
         get_images.return_value = ["IMAGE"]
         get_site_images.return_value = [("IMAGE_NAME", "IMAGE_ID")]
         res = self.client.get('/images/sitename/local')
@@ -394,4 +394,3 @@ class IMDashboardTests(unittest.TestCase):
         res = self.login(avatar)
         res = self.client.get('/logout')
         self.assertEqual(302, res.status_code)
-    
