@@ -4,7 +4,8 @@ imports:
   - indigo_custom_types: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/custom_types.yaml
 
 description: >
-  Launch a compute node getting the IP and SSH credentials to access via ssh and with pre-created users
+  Launch a compute node getting the IP and SSH credentials to access via ssh and with pre-created users 
+  (Search passwords in /var/tmp/passwordfile_userXX)
 
 metadata:
   display_name: Start a virtual machine with users 
