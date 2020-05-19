@@ -1,7 +1,7 @@
 class Settings:
     def __init__(self, config):
         self.toscaDir = config['TOSCA_TEMPLATES_DIR'] + "/"
-        self.toscaParamsDir = config.get('TOSCA_PARAMETERS_DIR')
+        self.toscaParamsDir = config.get('TOSCA_PARAMETERS_DIR') + "/"
         self.imUrl = config['IM_URL']
         self.oidcUrl = config['OIDC_BASE_URL']
         self.tempSlamUrl = config.get('SLAM_URL') if config.get('SLAM_URL') else ""

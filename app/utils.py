@@ -165,10 +165,9 @@ def extractToscaInfo(toscaDir, tosca_pars_dir, toscaTemplates):
                     toscaInfo[tosca]['inputs'] = template['topology_template']['inputs']
 
                 # add parameters code here
-                tabs = {}
                 if tosca_pars_dir:
                     tosca_pars_path = tosca_pars_dir + "/"  # this has to be reassigned here because is local.
-                    for fpath, subs, fnames in os.walk(tosca_pars_path):
+                    for fpath, _, fnames in os.walk(tosca_pars_path):
                         for fname in fnames:
                             if fnmatch(fname, os.path.splitext(tosca)[0] + '.parameters.yml') or \
                                     fnmatch(fname, os.path.splitext(tosca)[0] + '.parameters.yaml'):
