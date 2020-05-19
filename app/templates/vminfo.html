@@ -100,8 +100,8 @@
                     Username: {{ vminfo['disk.0.os.credentials.username'] }}
                     {% set _dummy=vminfo.pop('disk.0.os.credentials.username') %}
                     {% if 'disk.0.os.credentials.password' in vminfo %}
+                      <br> Password: {{ vminfo['disk.0.os.credentials.password'] }}
                       {% set _dummy=vminfo.pop('disk.0.os.credentials.password') %}
-                      <br> Password: {{ vminfo['disk.0.os.credentials.password'] }} 
                     {% endif %}
                     {% if 'disk.0.os.credentials.private_key' in vminfo %}
                       <br> Key: 

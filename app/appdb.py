@@ -4,13 +4,14 @@ from urllib.parse import urlparse
 
 APPDB_URL = "https://appdb.egi.eu"
 
+
 def appdb_call(path, retries=3):
     """
     Basic AppDB REST API call
     """
     data = None
     cont = 0
-    while data == None and cont < retries:
+    while data is None and cont < retries:
         cont + 1
         resp = requests.request("GET", APPDB_URL + path, verify=False)
         if resp.status_code == 200:
@@ -18,13 +19,18 @@ def appdb_call(path, retries=3):
 
     return data
 
+
 def get_vo_list():
     vos = []
     data = appdb_call('/rest/1.0/vos')
     if data:
-        for vo in data['vo:vo']:
-            vos.append(vo['@name'])
+        if isinstance(data['vo:vo'], list):
+            for vo in data['vo:vo']:
+                vos.append(vo['@name'])
+        else:
+            vos.append(data['vo:vo']['@name'])
     return vos
+
 
 def check_supported_VOs(site, vo):
     if not vo:
@@ -35,6 +41,7 @@ def check_supported_VOs(site, vo):
             if '@voname' in os_tpl and vo in os_tpl['@voname']:
                 return True
     return False
+
 
 def _get_services(vo=None):
     appdburl = '/rest/1.0/sites'
@@ -60,6 +67,7 @@ def _get_services(vo=None):
                 services.append(site['site:service'])
 
     return services
+
 
 def get_sites(vo=None):
     providersID = [service['@id'] for service in _get_services(vo)]
@@ -88,15 +96,15 @@ def get_images(name, vo):
         try:
             va_data = appdb_call('/rest/1.0/va_providers/%s' % service['@id'])
             if ('provider:url' in va_data['virtualization:provider'] and
-                va_data['virtualization:provider']['@service_type'] == 'org.openstack.nova' and
-                va_data['virtualization:provider']['provider:name'] == name):
+                    va_data['virtualization:provider']['@service_type'] == 'org.openstack.nova' and
+                    va_data['virtualization:provider']['provider:name'] == name):
                 for os_tpl in va_data['virtualization:provider']['provider:image']:
                     try:
                         if '@voname' in os_tpl and vo in os_tpl['@voname'] and os_tpl['@archived'] == "false":
                             oss.append(os_tpl['@appcname'])
-                    except:
+                    except Exception:
                         continue
-        except:
+        except Exception:
             continue
 
     return oss

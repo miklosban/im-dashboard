@@ -1,20 +1,11 @@
-from app import app
-
-toscaDir = app.config['TOSCA_TEMPLATES_DIR'] + "/"
-toscaParamsDir = app.config.get('TOSCA_PARAMETERS_DIR')
-imUrl = app.config['IM_URL']
-
-oidcUrl = app.config['OIDC_BASE_URL']
-
-tempSlamUrl = app.config.get('SLAM_URL') if app.config.get('SLAM_URL') else "" 
-
-imConf = {
-  'im_url': app.config.get('IM_URL'),
-}
-
-external_links = app.config.get('EXTERNAL_LINKS') if app.config.get('EXTERNAL_LINKS') else []
-
-oidcGroups = app.config.get('OIDC_GROUP_MEMBERSHIP')
-
-
-cred_db_url = app.config.get('CRED_DB_URL')
+class Settings:
+    def __init__(self, config):
+        self.toscaDir = config['TOSCA_TEMPLATES_DIR'] + "/"
+        self.toscaParamsDir = config.get('TOSCA_PARAMETERS_DIR') + "/"
+        self.imUrl = config['IM_URL']
+        self.oidcUrl = config['OIDC_BASE_URL']
+        self.tempSlamUrl = config.get('SLAM_URL') if config.get('SLAM_URL') else ""
+        self.imConf = {'im_url': config.get('IM_URL')}
+        self.external_links = config.get('EXTERNAL_LINKS') if config.get('EXTERNAL_LINKS') else []
+        self.oidcGroups = config.get('OIDC_GROUP_MEMBERSHIP')
+        self.cred_db_url = config.get('CRED_DB_URL')
