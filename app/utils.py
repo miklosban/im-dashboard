@@ -126,9 +126,10 @@ def avatar(email, size):
 def loadToscaTemplates(directory):
 
     toscaTemplates = []
-    for path, subdirs, files in os.walk(directory):
+    for path, _, files in os.walk(directory):
         for name in files:
-            if fnmatch(name, "*.yml") or fnmatch(name, "*.yaml"):
+            if (fnmatch(name, "*.yml") or fnmatch(name, "*.yaml")) and \
+                    not (fnmatch(name, "*.parameters.yaml") or fnmatch(name, "*.parameters.yml")):
                 # skip hidden files
                 if name[0] != '.':
                     toscaTemplates.append(os.path.relpath(os.path.join(path, name), directory))
