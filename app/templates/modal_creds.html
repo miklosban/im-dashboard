@@ -2,7 +2,7 @@
 <script>
     $(function() {
       $('.dropdown-menu a').click(function() {
-        $('#myInputId').val('(' + $(this).attr('data-value') + ')');
+        $('#myInputId').val($(this).attr('data-value'));
       });
     });
 </script>
@@ -11,12 +11,15 @@
 	      <label for="project"><strong>Project</strong></label>
 
         <div>
-          <input name="project" type="text" placeholder="" class="form-control dropdown-toggle" id="myInputId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value="{{ service_creds['project'] if service_creds else '' }}">/>
+          <input name="project" class="col-sm-10" type="text" id="myInputId" value="{{ service_creds['project'] if service_creds else '' }}"/>
+          {% if projects %}
+          <button type="button" class="col-sm-1 btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <div class="dropdown-menu" aria-labelledby="myInputId">
             {% for vo, project_id in projects %}
             <a class="dropdown-item" data-value="{{project_id}}" href="#">{{vo}}</a>
             {% endfor %}
           </div>
+          {% endif %}
         </div>
 
       </div>

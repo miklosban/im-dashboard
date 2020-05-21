@@ -122,7 +122,6 @@ def get_project_ids(service_id):
             shares = [va_data['virtualization:provider']['provider:shares']['vo:vo']]
 
         for vo in shares:
-            print(vo)
             projects.append((vo["#text"], vo['@projectid']))
 
     return projects

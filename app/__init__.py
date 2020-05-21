@@ -505,7 +505,7 @@ def create_app(oidc_blueprint=None):
         sites = {}
 
         try:
-            sites = appdb.get_sites()
+            sites = utils.getCachedSiteList()
         except Exception as e:
             flash("Error retrieving sites list: \n" + str(e), 'warning')
 

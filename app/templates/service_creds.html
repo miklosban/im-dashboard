@@ -106,7 +106,7 @@ $(document).ready(function () {
      var service_id = button.data('id')
      var service_name = button.data('name')
      var modal = $(this)
-     modal.find('.modal-body').html('Loading...').load("{{url_for('write_creds')}}?service_name=" + service_name + "service_id=" + service_id);
+     modal.find('.modal-body').html('Loading...').load("{{url_for('write_creds')}}?service_name=" + service_name + "&service_id=" + service_id);
      modal.find(".updateBtn")[0].setAttribute("href", "#");
      modal.find(".updateBtn")[0].setAttribute("onclick", "document.getElementById('credForm').submit();");
   });
