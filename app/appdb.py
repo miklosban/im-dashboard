@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 APPDB_URL = "https://appdb.egi.eu"
 
 
-def appdb_call(path, retries=3):
+def appdb_call(path, retries=3, url=APPDB_URL):
     """
     Basic AppDB REST API call
     """
@@ -13,7 +13,7 @@ def appdb_call(path, retries=3):
     cont = 0
     while data is None and cont < retries:
         cont + 1
-        resp = requests.request("GET", APPDB_URL + path, verify=False)
+        resp = requests.request("GET", url + path, verify=False)
         if resp.status_code == 200:
             data = xmltodict.parse(resp.text.replace('\n', ''))['appdb:appdb']
 
@@ -85,7 +85,7 @@ def get_sites(vo=None):
                     critical = "CRITICAL"
                 provider_endpoint_url = site['provider:url']
                 url = urlparse(provider_endpoint_url)
-                endpoints[provider_name] = ("%s://%s" % url[0:2], critical)
+                endpoints[provider_name] = ("%s://%s" % url[0:2], critical, ID)
 
     return endpoints
 
@@ -108,3 +108,21 @@ def get_images(name, vo):
             continue
 
     return oss
+
+
+def get_project_ids(service_id):
+    projects = []
+    # Until it is on the prod instance use the Devel one
+    deb_url = "https://appdb-dev.marie.hellasgrid.gr"
+    va_data = appdb_call('/rest/1.0/va_providers/%s' % service_id, url=deb_url)
+    if 'provider:shares' in va_data['virtualization:provider']:
+        if isinstance(va_data['virtualization:provider']['provider:shares']['vo:vo'], list):
+            shares = va_data['virtualization:provider']['provider:shares']['vo:vo']
+        else:
+            shares = [va_data['virtualization:provider']['provider:shares']['vo:vo']]
+
+        for vo in shares:
+            print(vo)
+            projects.append((vo["#text"], vo['@projectid']))
+
+    return projects

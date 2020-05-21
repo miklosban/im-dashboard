@@ -1,9 +1,23 @@
 <script src="https://unpkg.com/bootstrap-show-password@1.2.1/dist/bootstrap-show-password.min.js"></script>
-  <form id="credForm" action="{{ url_for('write_creds') }}?service_id={{service_id}}" method="post">
+<script>
+    $(function() {
+      $('.dropdown-menu a').click(function() {
+        $('#myInputId').val('(' + $(this).attr('data-value') + ')');
+      });
+    });
+</script>
+  <form id="credForm" action="{{ url_for('write_creds') }}?service_id={{service_id}}&service_name={{service_name}}" method="post">
       <div class="form-group">
 	      <label for="project"><strong>Project</strong></label>
+
         <div>
-	        <input type="text" class="form-control" name="project" id="project" value="{{ service_creds['project'] if service_creds else '' }}">
+          <input name="project" type="text" placeholder="" class="form-control dropdown-toggle" id="myInputId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value="{{ service_creds['project'] if service_creds else '' }}">/>
+          <div class="dropdown-menu" aria-labelledby="myInputId">
+            {% for vo, project_id in projects %}
+            <a class="dropdown-item" data-value="{{project_id}}" href="#">{{vo}}</a>
+            {% endfor %}
+          </div>
         </div>
+
       </div>
     </form>

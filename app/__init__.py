@@ -515,22 +515,26 @@ def create_app(oidc_blueprint=None):
     @authorized_with_valid_token
     def write_creds():
         serviceid = request.args.get('service_id', "")
+        servicename = request.args.get('service_name', "")
         app.logger.debug("service_id={}".format(serviceid))
 
         if request.method == 'GET':
             res = {}
+            projects = []
             try:
-                res = cred.get_cred(serviceid, session["userid"])
+                res = cred.get_cred(servicename, session["userid"])
+                projects = appdb.get_project_ids(serviceid)
             except Exception as ex:
                 flash("Error reading credentials %s!" % ex, 'error')
 
-            return render_template('modal_creds.html', service_creds=res, service_id=serviceid)
+            return render_template('modal_creds.html', service_creds=res, service_id=serviceid,
+                                   service_name=servicename, projects=projects)
         else:
             app.logger.debug("Form data: " + json.dumps(request.form.to_dict()))
 
             creds = request.form.to_dict()
             try:
-                cred.write_creds(serviceid, session["userid"], creds)
+                cred.write_creds(servicename, session["userid"], creds)
                 flash("Credentials successfully written!", 'info')
             except Exception as ex:
                 flash("Error writing credentials %s!" % ex, 'error')

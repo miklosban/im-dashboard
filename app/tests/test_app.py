@@ -331,7 +331,7 @@ class IMDashboardTests(unittest.TestCase):
     @patch("app.appdb.get_sites")
     def test_manage_creds(self, get_sites, avatar):
         self.login(avatar)
-        get_sites.return_value = {"SITE_NAME": ("SITE_URL", "SITE_STATUS")}
+        get_sites.return_value = {"SITE_NAME": ("SITE_URL", "SITE_STATUS", "SITE_ID")}
         res = self.client.get('/manage_creds')
         self.assertEqual(200, res.status_code)
         self.assertIn(b'SITE_NAME', res.data)
@@ -340,12 +340,15 @@ class IMDashboardTests(unittest.TestCase):
     @patch("app.utils.avatar")
     @patch("app.cred.Credentials.get_cred")
     @patch("app.flash")
-    def test_write_creds(self, flash, get_cred, avatar):
+    @patch("app.appdb.get_project_ids")
+    def test_write_creds(self, get_project_ids, flash, get_cred, avatar):
         self.login(avatar)
         get_cred.return_value = {"project": "PROJECT_NAME"}
+        get_project_ids.return_value = [("VO_NAME", "PROJECT_ID")]
         res = self.client.get('/write_creds?service_id=SERVICE_ID')
         self.assertEqual(200, res.status_code)
         self.assertIn(b'PROJECT_NAME', res.data)
+        self.assertIn(b'PROJECT_ID', res.data)
         res = self.client.post('/write_creds?service_id=SERVICE_ID', data={"project": "PROJECT_NAME"})
         self.assertEqual(302, res.status_code)
         self.assertIn('/manage_creds', res.headers['location'])

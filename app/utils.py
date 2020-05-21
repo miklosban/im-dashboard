@@ -28,7 +28,7 @@ CACHE_DELAY = 3600
 
 def get_ost_image_url(site_name):
     sites = getCachedSiteList()
-    site_url, _ = sites[site_name]
+    site_url, _, _ = sites[site_name]
     return urlparse(site_url)[1]
 
 
@@ -40,7 +40,7 @@ def get_site_images(site_name, vo, access_token, cred, userid):
             domain = creds["project"]
 
         sites = getCachedSiteList()
-        site_url, _ = sites[site_name]
+        site_url, _, _ = sites[site_name]
 
         OpenStack = get_driver(Provider.OPENSTACK)
         driver = OpenStack('egi.eu', access_token,
@@ -89,7 +89,7 @@ def getUserAuthData(access_token, cred, userid):
     res = "type = InfrastructureManager; token = %s" % access_token
 
     cont = 0
-    for site_name, (site_url, _) in getCachedSiteList().items():
+    for site_name, (site_url, _, _) in getCachedSiteList().items():
         cont += 1
         creds = cred.get_cred(site_name, userid)
         res += "\\nid = ost%s; type = OpenStack; username = egi.eu; " % cont
