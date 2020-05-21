@@ -391,7 +391,7 @@ def create_app(oidc_blueprint=None):
     @app.route('/sites/<vo>')
     def getsites(vo=None):
         res = ""
-        for site_name, (site_url, site_state) in appdb.get_sites(vo).items():
+        for site_name, _ in appdb.get_sites(vo).items():
             res += '<option name="selectedSite" value=%s>%s</option>' % (site_name, site_name)
         return res
 

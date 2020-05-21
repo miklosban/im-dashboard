@@ -70,7 +70,7 @@ def getCachedSiteList():
     global CACHE_DELAY
 
     now = int(time.time())
-    if now - LAST_UPDATE > CACHE_DELAY:
+    if not SITE_LIST or now - LAST_UPDATE > CACHE_DELAY:
         LAST_UPDATE = now
         SITE_LIST = appdb.get_sites()
 
