@@ -105,17 +105,21 @@ class TestAppDB(unittest.TestCase):
         va_provider = read_file_as_string("files/va_provider.xml")
         appdb_call.return_value = xmltodict.parse(va_provider.replace('\n', ''))["appdb:appdb"]
         res = appdb.get_sites("vo.access.egi.eu")
-        self.assertEquals(res, {'CESGA': ('https://fedcloud-osservices.egi.cesga.es:5000', '')})
+        self.assertEquals(res, {'CESGA': ('https://fedcloud-osservices.egi.cesga.es:5000', '', '1')})
         self.assertEquals(appdb_call.call_args_list[0][0][0], "/rest/1.0/va_providers/1")
 
     @patch('app.appdb.appdb_call')
-    @patch('app.appdb._get_services')
-    def test_get_images(self, get_services, appdb_call):
-        get_services.return_value = [{"@id": "1"}]
-        va_provider = read_file_as_string("files/va_provider.xml")
-        appdb_call.return_value = xmltodict.parse(va_provider.replace('\n', ''))["appdb:appdb"]
-        res = appdb.get_images("CESGA", "vo.access.egi.eu")
-        self.assertEquals(res[0], "chipster")
+    def test_get_project_ids(self, appdb_call):
+        shares = """<virtualization:provider id="11548G0">
+                    <provider:shares>
+                    <vo:vo id="15527" projectid="3a8e9d966e644405bf19b536adf7743d">vo.access.egi.eu</vo:vo>
+                    <vo:vo projectid="972298c557184a2192ebc861f3184da8">covid-19.eosc-synergy.eu</vo:vo>
+                    </provider:shares>
+                    </virtualization:provider>"""
+        appdb_call.return_value = xmltodict.parse(shares.replace('\n', ''))
+        res = appdb.get_project_ids("11548G0")
+        self.assertEquals(res, [("vo.access.egi.eu", "3a8e9d966e644405bf19b536adf7743d"),
+                                ("covid-19.eosc-synergy.eu", "972298c557184a2192ebc861f3184da8")])
 
 
 if __name__ == '__main__':

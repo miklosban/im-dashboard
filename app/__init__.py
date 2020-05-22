@@ -391,7 +391,7 @@ def create_app(oidc_blueprint=None):
     @app.route('/sites/<vo>')
     def getsites(vo=None):
         res = ""
-        for site_name, (site_url, site_state) in appdb.get_sites(vo).items():
+        for site_name, _ in appdb.get_sites(vo).items():
             res += '<option name="selectedSite" value=%s>%s</option>' % (site_name, site_name)
         return res
 
@@ -505,7 +505,7 @@ def create_app(oidc_blueprint=None):
         sites = {}
 
         try:
-            sites = appdb.get_sites()
+            sites = utils.getCachedSiteList()
         except Exception as e:
             flash("Error retrieving sites list: \n" + str(e), 'warning')
 
@@ -515,22 +515,26 @@ def create_app(oidc_blueprint=None):
     @authorized_with_valid_token
     def write_creds():
         serviceid = request.args.get('service_id', "")
+        servicename = request.args.get('service_name', "")
         app.logger.debug("service_id={}".format(serviceid))
 
         if request.method == 'GET':
             res = {}
+            projects = []
             try:
-                res = cred.get_cred(serviceid, session["userid"])
+                res = cred.get_cred(servicename, session["userid"])
+                projects = appdb.get_project_ids(serviceid)
             except Exception as ex:
                 flash("Error reading credentials %s!" % ex, 'error')
 
-            return render_template('modal_creds.html', service_creds=res, service_id=serviceid)
+            return render_template('modal_creds.html', service_creds=res, service_id=serviceid,
+                                   service_name=servicename, projects=projects)
         else:
             app.logger.debug("Form data: " + json.dumps(request.form.to_dict()))
 
             creds = request.form.to_dict()
             try:
-                cred.write_creds(serviceid, session["userid"], creds)
+                cred.write_creds(servicename, session["userid"], creds)
                 flash("Credentials successfully written!", 'info')
             except Exception as ex:
                 flash("Error writing credentials %s!" % ex, 'error')

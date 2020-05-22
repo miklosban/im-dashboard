@@ -29,13 +29,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for site_name, (site_url, site_status) in sites.items() %}
+                    {% for site_name, (site_url, site_status, site_id) in sites.items() %}
                     <tr>
                       <td>{{site_name}}</td>
                       <td>{{site_url}}</td>
                       <td>
-                        <button type=button id="updateBtn" data-id="{{site_name}}" class="btn btn-small btn-success" data-toggle="modal" data-target="#newModal">EDIT</button>
-                        <button type=button id="deleteBtn" data-id="{{site_name}}" class="btn btn-small btn-danger" data-toggle="modal" data-target="#deleteModal" data-backdrop="static" data-keyboard="false">DELETE</button>
+                        <button type=button id="updateBtn" data-id="{{site_id}}" data-name="{{site_name}}" class="btn btn-small btn-success" data-toggle="modal" data-target="#newModal">EDIT</button>
+                        <button type=button id="deleteBtn" data-id="{{site_id}}" data-name="{{site_name}}" class="btn btn-small btn-danger" data-toggle="modal" data-target="#deleteModal" data-backdrop="static" data-keyboard="false">DELETE</button>
                       </td>
                     </tr>
                     {% endfor %}
@@ -48,7 +48,7 @@
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="get_secret">Secrets</h5>
+                <h5 class="modal-title" id="get_secret">Project</h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
               </div>
               <div class="modal-body">
@@ -104,8 +104,9 @@ $(document).ready(function () {
   $('#newModal').on('show.bs.modal', function (event) {
      var button = $(event.relatedTarget) // Button that triggered the modal
      var service_id = button.data('id')
+     var service_name = button.data('name')
      var modal = $(this)
-     modal.find('.modal-body').html('Loading...').load("{{url_for('write_creds')}}?service_id=" + service_id);
+     modal.find('.modal-body').html('Loading...').load("{{url_for('write_creds')}}?service_name=" + service_name + "&service_id=" + service_id);
      modal.find(".updateBtn")[0].setAttribute("href", "#");
      modal.find(".updateBtn")[0].setAttribute("onclick", "document.getElementById('credForm').submit();");
   });
@@ -133,7 +134,7 @@ $(document).ready(function () {
 $(document).ready(function () {
   $('#deleteModal').on('show.bs.modal', function (event) {
      var button = $(event.relatedTarget) // Button that triggered the modal
-     var service_id = button.data('id')
+     var service_id = button.data('name')
      var modal = $(this)
      modal.find(".deleteBtn")[0].setAttribute("href", "{{url_for('delete_creds')}}?service_id="+service_id);
   });

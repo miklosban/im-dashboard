@@ -35,8 +35,9 @@ class TestUtils(unittest.TestCase):
 
     @patch("app.appdb.get_sites")
     def test_getCachedSiteList(self, get_sites):
-        expected_res = {'CESGA': ('https://fedcloud-osservices.egi.cesga.es:5000', '')}
+        expected_res = {'CESGA': ('https://fedcloud-osservices.egi.cesga.es:5000', '', '11548G0')}
         get_sites.return_value = expected_res
+        utils.SITE_LIST = None
         res = utils.getCachedSiteList()
         self.assertEquals(res, expected_res)
         res = utils.getCachedSiteList()
@@ -47,7 +48,7 @@ class TestUtils(unittest.TestCase):
     def test_getUserAuthData(self, getCachedSiteList):
         cred = MagicMock()
         cred.get_cred.return_value = {"project": "project_name"}
-        getCachedSiteList.return_value = {'CESGA': ('https://fedcloud-osservices.egi.cesga.es:5000', '')}
+        getCachedSiteList.return_value = {'CESGA': ('https://fedcloud-osservices.egi.cesga.es:5000', '', '11548G0')}
         res = utils.getUserAuthData("token", cred, "user")
         self.assertEquals(res, ("type = InfrastructureManager; token = token\\nid = ost1; type = OpenStack;"
                                 " username = egi.eu; tenant = openid; auth_version = 3.x_oidc_access_token;"
@@ -59,7 +60,7 @@ class TestUtils(unittest.TestCase):
     def test_get_site_images(self, get_driver, getCachedSiteList):
         cred = MagicMock()
         cred.get_cred.return_value = {"project": "project_name"}
-        getCachedSiteList.return_value = {'CESGA': ('https://fedcloud-osservices.egi.cesga.es:5000', '')}
+        getCachedSiteList.return_value = {'CESGA': ('https://fedcloud-osservices.egi.cesga.es:5000', '', '11548G0')}
         driver = MagicMock()
         get_driver.return_value = driver
         image1 = MagicMock()
