@@ -524,6 +524,9 @@ def create_app(oidc_blueprint=None):
             try:
                 res = cred.get_cred(servicename, session["userid"])
                 projects = appdb.get_project_ids(serviceid)
+
+                if session["vos"]:
+                    projects = [project for project in projects if project[0] in session["vos"]]
             except Exception as ex:
                 flash("Error reading credentials %s!" % ex, 'error')
 
