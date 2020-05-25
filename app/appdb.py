@@ -6,9 +6,7 @@ APPDB_URL = "https://appdb.egi.eu"
 
 
 def appdb_call(path, retries=3, url=APPDB_URL):
-    """
-    Basic AppDB REST API call
-    """
+    """ Basic AppDB REST API call """
     data = None
     cont = 0
     while data is None and cont < retries:

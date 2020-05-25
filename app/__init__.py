@@ -12,7 +12,7 @@ from app.cred import Credentials
 from app import utils, appdb
 from oauthlib.oauth2.rfc6749.errors import InvalidTokenError, TokenExpiredError
 from werkzeug.exceptions import Forbidden
-from flask import Flask, json, render_template, request, redirect, url_for, flash, session, Markup
+from flask import Flask, json, render_template, request, redirect, url_for, flash, session, Markup, g
 from functools import wraps
 from urllib.parse import urlparse
 from radl import radl_parse
@@ -64,6 +64,7 @@ def create_app(oidc_blueprint=None):
     def before_request_checks():
         if 'external_links' not in session:
             session['external_links'] = settings.external_links
+        g.analytics_tag = settings.analytics_tag
 
     def authorized_with_valid_token(f):
         @wraps(f)
@@ -76,7 +77,7 @@ def create_app(oidc_blueprint=None):
                 if oidc_blueprint.session.token['expires_in'] < 20:
                     app.logger.debug("Force refresh token")
                     oidc_blueprint.session.get('/userinfo')
-            except (InvalidTokenError, TokenExpiredError) as e:
+            except (InvalidTokenError, TokenExpiredError):
                 flash("Token expired.", 'warning')
                 return redirect(url_for('login'))
 
@@ -524,6 +525,9 @@ def create_app(oidc_blueprint=None):
             try:
                 res = cred.get_cred(servicename, session["userid"])
                 projects = appdb.get_project_ids(serviceid)
+
+                if session["vos"]:
+                    projects = [project for project in projects if project[0] in session["vos"]]
             except Exception as ex:
                 flash("Error reading credentials %s!" % ex, 'error')
 
