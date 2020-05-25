@@ -64,6 +64,8 @@ def create_app(oidc_blueprint=None):
     def before_request_checks():
         if 'external_links' not in session:
             session['external_links'] = settings.external_links
+        if 'analytics_tag' not in session:
+            session['analytics_tag'] = settings.analytics_tag
 
     def authorized_with_valid_token(f):
         @wraps(f)
@@ -76,7 +78,7 @@ def create_app(oidc_blueprint=None):
                 if oidc_blueprint.session.token['expires_in'] < 20:
                     app.logger.debug("Force refresh token")
                     oidc_blueprint.session.get('/userinfo')
-            except (InvalidTokenError, TokenExpiredError) as e:
+            except (InvalidTokenError, TokenExpiredError):
                 flash("Token expired.", 'warning')
                 return redirect(url_for('login'))
 

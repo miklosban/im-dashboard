@@ -43,7 +43,7 @@ except Exception:
 
 # Class to manage DB operations
 class DataBase:
-    """Class to manage DB operations"""
+    """ Class to manage DB operations """
 
     db_available = SQLITE_AVAILABLE or MYSQL_AVAILABLE or MONGO_AVAILABLE
     RETRY_SLEEP = 2
@@ -54,15 +54,17 @@ class DataBase:
     DB_TYPES = [MYSQL, SQLITE]
 
     def __init__(self, db_url):
+        """ Creation function """
         self.db_url = db_url
         self.connection = None
         self.db_type = None
 
     def connect(self):
-        """ Function to connect to the DB
+        """
+        Function to connect to the DB
 
-            Returns: True if the connection is established correctly
-                     of False in case of errors.
+        Returns: True if the connection is established correctly
+                 of False in case of errors.
         """
         uri = urlparse(self.db_url)
         protocol = uri[0]
@@ -127,7 +129,8 @@ class DataBase:
             return False
 
     def _execute_retry(self, sql, args, fetch=False):
-        """ Function to execute a SQL function, retrying in case of locked DB
+        """
+            Function to execute a SQL function, retrying in case of locked DB
 
             Arguments:
             - sql: The SQL sentence
@@ -172,7 +175,7 @@ class DataBase:
                         self.connect()
                     else:
                         raise ex
-                except sqlite.IntegrityError as ex:
+                except sqlite.IntegrityError:
                     raise IntegrityError()
 
     def execute(self, sql, args=None):
