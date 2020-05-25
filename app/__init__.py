@@ -12,7 +12,7 @@ from app.cred import Credentials
 from app import utils, appdb
 from oauthlib.oauth2.rfc6749.errors import InvalidTokenError, TokenExpiredError
 from werkzeug.exceptions import Forbidden
-from flask import Flask, json, render_template, request, redirect, url_for, flash, session, Markup
+from flask import Flask, json, render_template, request, redirect, url_for, flash, session, Markup, g
 from functools import wraps
 from urllib.parse import urlparse
 from radl import radl_parse
@@ -64,8 +64,7 @@ def create_app(oidc_blueprint=None):
     def before_request_checks():
         if 'external_links' not in session:
             session['external_links'] = settings.external_links
-        if 'analytics_tag' not in session:
-            session['analytics_tag'] = settings.analytics_tag
+        g.analytics_tag = settings.analytics_tag
 
     def authorized_with_valid_token(f):
         @wraps(f)
