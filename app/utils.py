@@ -5,7 +5,7 @@ import os
 import io
 import ast
 import time
-from flask import flash
+from flask import flash, g
 from app import appdb
 from fnmatch import fnmatch
 from hashlib import md5
@@ -24,6 +24,19 @@ urllib3.disable_warnings(InsecureRequestWarning)
 SITE_LIST = {}
 LAST_UPDATE = 0
 CACHE_DELAY = 3600
+
+
+def getStaticSites(vo=None):
+    res = {}
+    if g.settings.static_sites:
+        for site in g.settings.static_sites:
+            if vo is None or vo in site["vos"]:
+                res[site["name"]] = (site["url"], "", site["id"])
+    if g.settings.static_sites_url:
+        # TODO: Donwload and parse
+        pass
+
+    return res
 
 
 def get_ost_image_url(site_name):
@@ -73,6 +86,7 @@ def getCachedSiteList():
     if not SITE_LIST or now - LAST_UPDATE > CACHE_DELAY:
         LAST_UPDATE = now
         SITE_LIST = appdb.get_sites()
+        SITE_LIST.update(getStaticSites())
 
     if not SITE_LIST:
         flash("Error retrieving site list", 'warning')

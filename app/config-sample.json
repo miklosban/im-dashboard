@@ -12,5 +12,7 @@
                         { "url": "https://imdocs.readthedocs.io/", "menu_item_name": "IM Docs" } ],
     "LOG_LEVEL": "info",
     "CRED_DB_URL": "sqlite:///creds.db",
-    "ANALYTICS_TAG": ""
+    "ANALYTICS_TAG": "",
+    "STATIC_SITES": [{"name": "static_site_name", "url": "static_site_url", "id": "static_id", "vos": ["vo"]}],
+    "STATIC_SITES_URL": ""
 }

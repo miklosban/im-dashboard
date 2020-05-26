@@ -65,6 +65,7 @@ def create_app(oidc_blueprint=None):
         if 'external_links' not in session:
             session['external_links'] = settings.external_links
         g.analytics_tag = settings.analytics_tag
+        g.settings = settings
 
     def authorized_with_valid_token(f):
         @wraps(f)
@@ -394,6 +395,10 @@ def create_app(oidc_blueprint=None):
         res = ""
         for site_name, _ in appdb.get_sites(vo).items():
             res += '<option name="selectedSite" value=%s>%s</option>' % (site_name, site_name)
+
+        for site_name, _ in utils.getStaticSites(vo).items():
+            res += '<option name="selectedSite" value=%s>%s</option>' % (site_name, site_name)
+
         return res
 
     @app.route('/images/<site>/<vo>')

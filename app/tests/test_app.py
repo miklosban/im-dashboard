@@ -297,6 +297,7 @@ class IMDashboardTests(unittest.TestCase):
         res = self.client.get('/sites/vo')
         self.assertEqual(200, res.status_code)
         self.assertIn(b'<option name="selectedSite" value=SITE_NAME>SITE_NAME</option>', res.data)
+        self.assertIn(b'<option name="selectedSite" value=static_site_name>static_site_name</option>', res.data)
 
     @patch("app.utils.avatar")
     @patch("app.utils.get_site_images")
@@ -336,6 +337,8 @@ class IMDashboardTests(unittest.TestCase):
         self.assertEqual(200, res.status_code)
         self.assertIn(b'SITE_NAME', res.data)
         self.assertIn(b'SITE_URL', res.data)
+        self.assertIn(b'static_site_name', res.data)
+        self.assertIn(b'static_site_url', res.data)
 
     @patch("app.utils.avatar")
     @patch("app.cred.Credentials.get_cred")

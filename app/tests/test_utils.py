@@ -33,17 +33,6 @@ class TestUtils(unittest.TestCase):
         res = utils.getUserVOs(entitlements)
         self.assertEquals(res, ['vo.test.egi.eu'])
 
-    @patch("app.appdb.get_sites")
-    def test_getCachedSiteList(self, get_sites):
-        expected_res = {'CESGA': ('https://fedcloud-osservices.egi.cesga.es:5000', '', '11548G0')}
-        get_sites.return_value = expected_res
-        utils.SITE_LIST = None
-        res = utils.getCachedSiteList()
-        self.assertEquals(res, expected_res)
-        res = utils.getCachedSiteList()
-        self.assertEquals(res, expected_res)
-        self.assertEquals(get_sites.call_count, 1)
-
     @patch("app.utils.getCachedSiteList")
     def test_getUserAuthData(self, getCachedSiteList):
         cred = MagicMock()
