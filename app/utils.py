@@ -85,8 +85,8 @@ def getCachedSiteList():
     now = int(time.time())
     if not SITE_LIST or now - LAST_UPDATE > CACHE_DELAY:
         LAST_UPDATE = now
-        SITE_LIST = appdb.get_sites()
-        SITE_LIST.update(getStaticSites())
+        SITE_LIST = getStaticSites()
+        SITE_LIST.update(appdb.get_sites())
 
     if not SITE_LIST:
         flash("Error retrieving site list", 'warning')
