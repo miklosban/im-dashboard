@@ -529,7 +529,8 @@ def create_app(oidc_blueprint=None):
             projects = []
             try:
                 res = cred.get_cred(servicename, session["userid"])
-                projects = appdb.get_project_ids(serviceid)
+                projects = utils.getStaticSitesProjectIDs(serviceid)
+                projects.extend(appdb.get_project_ids(serviceid))
 
                 if session["vos"]:
                     projects = [project for project in projects if project[0] in session["vos"]]

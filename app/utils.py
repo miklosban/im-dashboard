@@ -25,6 +25,18 @@ SITE_LIST = {}
 LAST_UPDATE = 0
 CACHE_DELAY = 3600
 
+def getStaticSitesProjectIDs(serviceid):
+    res = []
+    if g.settings.static_sites:
+        for site in g.settings.static_sites:
+            if serviceid == site["id"]:
+                for vo, projectid in site["vos"].items():
+                    res.append((vo, projectid))
+    if g.settings.static_sites_url:
+        # TODO: Donwload and parse
+        pass
+
+    return res
 
 def getStaticSites(vo=None):
     res = {}

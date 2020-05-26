@@ -111,15 +111,18 @@ def get_images(name, vo):
 def get_project_ids(service_id):
     projects = []
     # Until it is on the prod instance use the Devel one
-    deb_url = "https://appdb-dev.marie.hellasgrid.gr"
-    va_data = appdb_call('/rest/1.0/va_providers/%s' % service_id, url=deb_url)
-    if 'provider:shares' in va_data['virtualization:provider']:
-        if isinstance(va_data['virtualization:provider']['provider:shares']['vo:vo'], list):
-            shares = va_data['virtualization:provider']['provider:shares']['vo:vo']
-        else:
-            shares = [va_data['virtualization:provider']['provider:shares']['vo:vo']]
+    try:
+        deb_url = "https://appdb-dev.marie.hellasgrid.gr"
+        va_data = appdb_call('/rest/1.0/va_providers/%s' % service_id, url=deb_url)
+        if 'provider:shares' in va_data['virtualization:provider']:
+            if isinstance(va_data['virtualization:provider']['provider:shares']['vo:vo'], list):
+                shares = va_data['virtualization:provider']['provider:shares']['vo:vo']
+            else:
+                shares = [va_data['virtualization:provider']['provider:shares']['vo:vo']]
 
-        for vo in shares:
-            projects.append((vo["#text"], vo['@projectid']))
+            for vo in shares:
+                projects.append((vo["#text"], vo['@projectid']))
+    except:
+        pass
 
     return projects

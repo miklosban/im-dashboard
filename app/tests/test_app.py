@@ -348,10 +348,11 @@ class IMDashboardTests(unittest.TestCase):
         self.login(avatar)
         get_cred.return_value = {"project": "PROJECT_NAME"}
         get_project_ids.return_value = [("VO_NAME", "PROJECT_ID")]
-        res = self.client.get('/write_creds?service_id=SERVICE_ID')
+        res = self.client.get('/write_creds?service_id=static_id')
         self.assertEqual(200, res.status_code)
         self.assertIn(b'PROJECT_NAME', res.data)
         self.assertIn(b'PROJECT_ID', res.data)
+        self.assertIn(b'stprojectid', res.data)
         res = self.client.post('/write_creds?service_id=SERVICE_ID', data={"project": "PROJECT_NAME"})
         self.assertEqual(302, res.status_code)
         self.assertIn('/manage_creds', res.headers['location'])
