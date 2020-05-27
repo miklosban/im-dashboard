@@ -65,6 +65,7 @@ def create_app(oidc_blueprint=None):
         if 'external_links' not in session:
             session['external_links'] = settings.external_links
         g.analytics_tag = settings.analytics_tag
+        g.settings = settings
 
     def authorized_with_valid_token(f):
         @wraps(f)
@@ -380,7 +381,9 @@ def create_app(oidc_blueprint=None):
 
         app.logger.debug("Template: " + json.dumps(toscaInfo[selected_tosca]))
 
-        vos = appdb.get_vo_list()
+        vos = utils.getStaticVOs()
+        vos.extend(appdb.get_vo_list())
+        vos = list(set(vos))
         if session["vos"]:
             vos = [vo for vo in vos if vo in session["vos"]]
 
@@ -394,6 +397,10 @@ def create_app(oidc_blueprint=None):
         res = ""
         for site_name, _ in appdb.get_sites(vo).items():
             res += '<option name="selectedSite" value=%s>%s</option>' % (site_name, site_name)
+
+        for site_name, _ in utils.getStaticSites(vo).items():
+            res += '<option name="selectedSite" value=%s>%s</option>' % (site_name, site_name)
+
         return res
 
     @app.route('/images/<site>/<vo>')
@@ -524,7 +531,8 @@ def create_app(oidc_blueprint=None):
             projects = []
             try:
                 res = cred.get_cred(servicename, session["userid"])
-                projects = appdb.get_project_ids(serviceid)
+                projects = utils.getStaticSitesProjectIDs(serviceid)
+                projects.extend(appdb.get_project_ids(serviceid))
 
                 if session["vos"]:
                     projects = [project for project in projects if project[0] in session["vos"]]

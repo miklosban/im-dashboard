@@ -288,6 +288,7 @@ class IMDashboardTests(unittest.TestCase):
         res = self.client.get('/configure?selected_tosca=simple-node.yml')
         self.assertEqual(200, res.status_code)
         self.assertIn(b"Launch a compute node getting the IP and SSH credentials to access via ssh", res.data)
+        self.assertIn(b'<option name="selectedVO" value=vo>vo</option>', res.data)
 
     @patch("app.utils.avatar")
     @patch("app.appdb.get_sites")
@@ -297,6 +298,7 @@ class IMDashboardTests(unittest.TestCase):
         res = self.client.get('/sites/vo')
         self.assertEqual(200, res.status_code)
         self.assertIn(b'<option name="selectedSite" value=SITE_NAME>SITE_NAME</option>', res.data)
+        self.assertIn(b'<option name="selectedSite" value=static_site_name>static_site_name</option>', res.data)
 
     @patch("app.utils.avatar")
     @patch("app.utils.get_site_images")
@@ -336,6 +338,8 @@ class IMDashboardTests(unittest.TestCase):
         self.assertEqual(200, res.status_code)
         self.assertIn(b'SITE_NAME', res.data)
         self.assertIn(b'SITE_URL', res.data)
+        self.assertIn(b'static_site_name', res.data)
+        self.assertIn(b'static_site_url', res.data)
 
     @patch("app.utils.avatar")
     @patch("app.cred.Credentials.get_cred")
@@ -345,10 +349,11 @@ class IMDashboardTests(unittest.TestCase):
         self.login(avatar)
         get_cred.return_value = {"project": "PROJECT_NAME"}
         get_project_ids.return_value = [("VO_NAME", "PROJECT_ID")]
-        res = self.client.get('/write_creds?service_id=SERVICE_ID')
+        res = self.client.get('/write_creds?service_id=static_id')
         self.assertEqual(200, res.status_code)
         self.assertIn(b'PROJECT_NAME', res.data)
         self.assertIn(b'PROJECT_ID', res.data)
+        self.assertIn(b'stprojectid', res.data)
         res = self.client.post('/write_creds?service_id=SERVICE_ID', data={"project": "PROJECT_NAME"})
         self.assertEqual(302, res.status_code)
         self.assertIn('/manage_creds', res.headers['location'])
