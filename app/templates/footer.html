@@ -1,31 +1,27 @@
 <footer class="footer">
   <div class="container-fluid">
     <div class="row my-2">
-	    <div class="col-md-4 my-0">© 2019 DEEP Hybrid DataCloud<br> 
-		    <p style="color:white;font-size:10px;">This project has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 777435.</p>
+	    <div class="col-md-4 my-0 mt-2">© 2020 GRyCAP<br> 
 	    </div>
 	<div class="col-md-6 my-0">
-	  <p>	
-	     <img src="https://deep-hybrid-datacloud.eu/wp-content/uploads/sites/2/2018/01/logo_EUC-1.png"/>
+	  <p>
+		 <a href="https://www.indigo-datacloud.eu/" target="_blank"><img src="{{ url_for('static', filename='images/indigo_logo.png') }}"/></a>
+		 <a href="https://deep-hybrid-datacloud.eu/" target="_blank"><img src="{{ url_for('static', filename='images/logo_deep.png') }}"/></a>
+		 <a href="https://www.eosc-hub.eu/" target="_blank"><img src="{{ url_for('static', filename='images/eosc-hub_logo.png') }}"/></a>
+		 <a href="https://www.eosc-synergy.eu/" target="_blank"><img src="{{ url_for('static', filename='images/eosc-synergy_logo.png') }}"/></a>
 	  </p>   
 	</div>
-	<div class="col-md-2 mt-4" style="display:flex;justify-content:space-around;">
-		<a href="https://twitter.com/DEEP_eu" target="_blank" alt="Twitter" title="Twitter">
-                  <i class="fab fa-twitter" style="color:white;"></i>
-		</a>
-		<a href="https://www.linkedin.com/groups/12093546" target="_blank" alt="Linkedin" title="Linkedin">
-                  <i class="fab fa-linkedin" style="color:white;"></i>
-		</a>
-		<a href="https://github.com/deephdc/" target="_blank" alt="Github" title="Github">
+	<div class="col-md-2 mt-2" style="display:flex;justify-content:space-around;">
+		<a href="https://github.com/grycap/" target="_blank" alt="Github" title="Github">
                   <i class="fab fa-github" style="color:white;"></i>
 	        </a>
-		<a href="https://hub.docker.com/u/deephdc/" target="_blank" alt="DockerHub" title="DockerHub">
+		<a href="https://hub.docker.com/orgs/grycap" target="_blank" alt="DockerHub" title="DockerHub">
                   <i class="fab fa-docker" style="color:white;"></i>
 		</a>
-		<a href="https://www.researchgate.net/project/DEEP-Hybrid-DataCloud" target="_blank" alt="ResearchGate" title="ResearchGate">
+		<a href="https://www.researchgate.net/lab/GRyCAP-Ignacio-Blanquer" target="_blank" alt="ResearchGate" title="ResearchGate">
                   <i class="fab fa-researchgate" style="color:white;"></i>
 		</a>
-		<a href="https://docs.deep-hybrid-datacloud.eu/" target="_blank" alt="Documentation" title="Documentation">
+		<a href="https://imdocs.readthedocs.io" target="_blank" alt="Documentation" title="Documentation">
                   <i class="fa fa-book" style="color:white;"></i>
 		</a>
 	</div>    
@@ -41,14 +37,15 @@
   position: fixed; 
   bottom: 0;
   width: 100%;
-  height: 70px;  /* Set the fixed height of the footer */
+  height: 50px;  /* Set the fixed height of the footer */
   line-height: 20px; 
   background-color: #262727;
   color: white;	     
   opacity: 0.80;	   
 }
 .footer img {
- height: 55px;
+ height: 36px;
+ margin-right: 20px;
 }
 </style>
 
