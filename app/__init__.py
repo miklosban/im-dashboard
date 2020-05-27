@@ -383,6 +383,7 @@ def create_app(oidc_blueprint=None):
 
         vos = utils.getStaticVOs()
         vos.extend(appdb.get_vo_list())
+        vos = list(set(vos))
         if session["vos"]:
             vos = [vo for vo in vos if vo in session["vos"]]
 
