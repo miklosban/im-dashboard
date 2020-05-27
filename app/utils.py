@@ -25,30 +25,40 @@ SITE_LIST = {}
 LAST_UPDATE = 0
 CACHE_DELAY = 3600
 
-def getStaticSitesProjectIDs(serviceid):
-    res = []
+
+def _getStaticSitesInfo():
     if g.settings.static_sites:
-        for site in g.settings.static_sites:
-            if serviceid == site["id"]:
-                for vo, projectid in site["vos"].items():
-                    res.append((vo, projectid))
+        return g.settings.static_sites
     if g.settings.static_sites_url:
         # TODO: Donwload and parse
-        pass
+        return {}
+
+
+def getStaticSitesProjectIDs(serviceid):
+    res = []
+    for site in _getStaticSitesInfo():
+        if serviceid == site["id"]:
+            for vo, projectid in site["vos"].items():
+                res.append((vo, projectid))
 
     return res
+
 
 def getStaticSites(vo=None):
     res = {}
-    if g.settings.static_sites:
-        for site in g.settings.static_sites:
-            if vo is None or vo in site["vos"]:
-                res[site["name"]] = (site["url"], "", site["id"])
-    if g.settings.static_sites_url:
-        # TODO: Donwload and parse
-        pass
+    for site in _getStaticSitesInfo():
+        if vo is None or vo in site["vos"]:
+            res[site["name"]] = (site["url"], "", site["id"])
 
     return res
+
+
+def getStaticVOs():
+    res = []
+    for site in _getStaticSitesInfo():
+        res.extend(list(site["vos"].keys()))
+
+    return list(set(res))
 
 
 def get_ost_image_url(site_name):

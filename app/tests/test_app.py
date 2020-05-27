@@ -288,6 +288,7 @@ class IMDashboardTests(unittest.TestCase):
         res = self.client.get('/configure?selected_tosca=simple-node.yml')
         self.assertEqual(200, res.status_code)
         self.assertIn(b"Launch a compute node getting the IP and SSH credentials to access via ssh", res.data)
+        self.assertIn(b'<option name="selectedVO" value=vo>vo</option>', res.data)
 
     @patch("app.utils.avatar")
     @patch("app.appdb.get_sites")

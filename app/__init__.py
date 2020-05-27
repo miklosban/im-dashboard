@@ -381,7 +381,8 @@ def create_app(oidc_blueprint=None):
 
         app.logger.debug("Template: " + json.dumps(toscaInfo[selected_tosca]))
 
-        vos = appdb.get_vo_list()
+        vos = utils.getStaticVOs()
+        vos.extend(appdb.get_vo_list())
         if session["vos"]:
             vos = [vo for vo in vos if vo in session["vos"]]
 
