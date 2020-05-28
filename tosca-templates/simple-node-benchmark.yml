@@ -4,11 +4,12 @@ imports:
   - ec3_custom_types: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/custom_types.yaml
 
 description: >
-  Launch a compute node getting the IP and SSH credentials to access via ssh
+  Launch a compute node getting the IP and SSH credentials to access via ssh and with tools to benchmark
+  EOSC-Synergy sites. Environment variable SITE_NAME will be set based on input parameter specified.
 
 metadata:
-  display_name: Start a virtual machine
-  icon: https://indigo-paas.cloud.ba.infn.it/public/images/vm-icon.png
+  display_name: Start a EOSC-Synergy benchmark virtual machine
+  icon: https://github.com/grycap/im-dashboard/raw/master/tosca-templates/images/synergy-bnech.png
   tag: VM
 
 topology_template:
@@ -30,8 +31,29 @@ topology_template:
       type: integer
       description: Number of VMs to be spawned
       default: 1
+    site_name:
+      type: string
+      description: Site name to test
+      default: ""
+      constraints:
+      - valid_values: [ "CESGA", "CETA-GRID", "IFCA-LCG2", "IISAS-FedCloud", "IISAS-GPUCloud", "CESNET-MCC", "NCG-INGRID-PT" ]
 
   node_templates:
+
+    synegy_test:
+      type: tosca.nodes.SoftwareComponent
+      requirements:
+        - host: simple_node 
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/synergy_bench.yml
+            inputs:
+              site_name: { get_input: site_name }
 
     simple_node:
       type: tosca.nodes.indigo.Compute
