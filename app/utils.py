@@ -84,6 +84,9 @@ def get_site_images(site_name, vo, access_token, cred, userid):
                            ex_force_auth_version='3.x_oidc_access_token',
                            ex_domain_name=domain)
 
+        # Workaround to unset default service_region (RegionOne)
+        driver.connection.service_region = None
+
         images = driver.list_images()
         return [(image.name, image.id) for image in images]
     except Exception as ex:
