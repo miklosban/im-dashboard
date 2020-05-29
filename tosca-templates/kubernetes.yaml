@@ -49,6 +49,12 @@ topology_template:
       type: string
       description: Access Token for the Kubernetes admin user
       default: not_very_secret_token
+    kube_version:
+      type: string
+      description: Version of Kubernetes to install
+      default: "1.15.12"
+      constraints:
+      - valid_values: [ "1.15.12", "1.16.10", "1.17.6", "1.18.3" ]
     install_kubeapps:
       type: boolean
       description: Flag to set the kubeapps UI to be installed
@@ -69,6 +75,7 @@ topology_template:
         admin_username:  kubeuser
         admin_token: { get_input: admin_token }
         install_kubeapps:  { get_input: install_kubeapps }
+        version: { get_input: kube_version }
       requirements:
         - host: front
 
@@ -92,6 +99,7 @@ topology_template:
       type: tosca.nodes.indigo.LRMS.WorkerNode.Kubernetes
       properties:
         front_end_ip: { get_attribute: [ front, private_address, 0 ] }
+        version: { get_input: kube_version }
       requirements:
         - host: wn
             

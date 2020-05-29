@@ -1,55 +1,26 @@
 inputs:
     mesos_password:
-      type: string
-      description: Admin password for accessing Mesos HTTP service
-      required: yes
       tab: Mesos Data
 
     marathon_password:
-      type: string
-      description: Admin password for accessing Marathon HTTP service
-      required: yes
       tab: Mesos Data
 
     chronos_password:
-      type: string
-      description: Admin password for accessing Chronos HTTP service
-      required: yes
       tab: Mesos Data
 
     slave_num:
-      type: integer
-      description: Number of slave nodes in the cluster
-      default: 2
-      required: yes
       tab: HW Data
 
     slave_cpus:
-      type: integer
-      description: Numer of CPUs for the slave node
-      default: 1
-      required: yes
       tab: HW Data
 
     slave_mem:
-      type: scalar-unit.size
-      description: Amount of Memory for the slave node
-      default: 2 GB
-      required: yes
       tab: HW Data
 
     master_cpus:
-      type: integer
-      description: Numer of CPUs for the master node
-      default: 2
-      required: yes
       tab: HW Data
 
     master_mem:
-      type: scalar-unit.size
-      description: Amount of Memory for the master node
-      default: 4 GB
-      required: yes
       tab: HW Data
 tabs:
   - HW Data

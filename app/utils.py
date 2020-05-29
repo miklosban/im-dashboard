@@ -217,7 +217,9 @@ def extractToscaInfo(toscaDir, tosca_pars_dir, toscaTemplates):
                                     with io.open(tosca_pars_file) as pars_file:
                                         toscaInfo[tosca]['enable_config_form'] = True
                                         pars_data = yaml.full_load(pars_file)
-                                        toscaInfo[tosca]['inputs'] = pars_data["inputs"]
+                                        for key, value in pars_data["inputs"].items():
+                                            if "tab" in value:
+                                                toscaInfo[tosca]['inputs'][key]["tab"] = value["tab"]
                                         if "tabs" in pars_data:
                                             toscaInfo[tosca]['tabs'] = pars_data["tabs"]
 
