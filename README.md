@@ -4,10 +4,10 @@ Infrastructure Manager - Simple Graphical UI (based on [INDIGO PaaS Orchestrator
 Functionalities:
 
 - OIDC authentication
-- Display user's deployments
-- Display deployment details, template and log
-- Delete deployment
-- Create new deployment
+- Display user's infrastructures
+- Display infrastructure details, template and log
+- Delete infrastructure
+- Create new infrastructure
 
 The im-dashboard is a Python application built with the [Flask](http://flask.pocoo.org/) microframework; [Flask-Dance](https://flask-dance.readthedocs.io/en/latest/) is used for Openid-Connect/OAuth2 integration.
 
@@ -31,16 +31,14 @@ Create the `config.json` file (see the [example](app/config-sample.json)) settin
 | OIDC_GROUP_MEMBERSHIP | List of OIDC groups to be checked for allowing access | N | []
 | OIDC_SCOPES | OIDC scopes | Y | N/A
 | TOSCA_TEMPLATES_DIR | Absolute path where the TOSCA templates are stored | Y | N/A
+| TOSCA_PARAMETERS_DIR | Absolute path where the TOSCA parameters are stored | Y | N/A
 | IM_URL | Infrastructure Manager service URL | Y | N/A
 | SUPPORT_EMAIL | Email address that will be shown in case of errors | N | ""
 | EXTERNAL_LINKS | List of dictionaries ({ "url": "example.com" , "menu_item_name": "Example link"}) specifying links that will be shown under the "External Links" menu | N | []
 | LOG_LEVEL | Set Logging level | N | info
-
-Clone the tosca-templates repository to get a set of tosca templates that the dashboard will load, e.g.:
-
-```sh
-git clone https://github.com/indigo-dc/tosca-templates -b stable/v3.0
-```
+| CRED_DB_URL | URL to the DB to store site project IDs | N | sqlite:///tmp/creds.db
+| ANALYTICS_TAG | Google Analytic Tag | N | ""
+| STATIC_SITES | List of static sites added to the AppDB ones ([{"name": "static_site_name", "url": "static_site_url", "id": "static_id", "vos": {"vo": "stprojectid"}}]) | N | []
 
 You need to run the IM dashboard on HTTPS (otherwise you will get an error); you can choose between
 
