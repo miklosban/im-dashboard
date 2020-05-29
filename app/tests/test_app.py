@@ -294,11 +294,12 @@ class IMDashboardTests(unittest.TestCase):
     @patch("app.appdb.get_sites")
     def test_sites(self, get_sites, avatar):
         self.login(avatar)
-        get_sites.return_value = {"SITE_NAME": ("", "")}
+        get_sites.return_value = {"SITE_NAME": ("", "", ""), "SITE2": ("", "CRITICAL", "")}
         res = self.client.get('/sites/vo')
         self.assertEqual(200, res.status_code)
         self.assertIn(b'<option name="selectedSite" value=SITE_NAME>SITE_NAME</option>', res.data)
         self.assertIn(b'<option name="selectedSite" value=static_site_name>static_site_name</option>', res.data)
+        self.assertIn(b'<option name="selectedSite" value=SITE2>SITE2 (WARNING: CRITICAL state!)</option>', res.data)
 
     @patch("app.utils.avatar")
     @patch("app.utils.get_site_images")
