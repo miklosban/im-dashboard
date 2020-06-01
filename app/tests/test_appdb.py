@@ -36,7 +36,8 @@ class TestAppDB(unittest.TestCase):
     Class to test the AppDB functions
     """
 
-    def requests_response(self, method, url, **kwargs):
+    @staticmethod
+    def requests_response(method, url, **kwargs):
         resp = MagicMock()
         parts = urlparse(url)
         url = parts[2]

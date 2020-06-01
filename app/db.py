@@ -269,7 +269,7 @@ class DataBase:
             return True
 
     def find(self, table_name, filt=None, projection=None, sort=None):
-        """Find elements"""
+        """Find elements."""
         if self.db_type != DataBase.MONGO:
             raise Exception("Operation only supported in MongoDB")
 

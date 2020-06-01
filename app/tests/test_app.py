@@ -12,7 +12,8 @@ class IMDashboardTests(unittest.TestCase):
         self.app = create_app(self.oauth)
         self.client = self.app.test_client()
 
-    def get_response(self, url, params=None, **kwargs):
+    @staticmethod
+    def get_response(url, params=None, **kwargs):
         resp = MagicMock()
         parts = urlparse(url)
         url = parts[2]
@@ -74,7 +75,8 @@ class IMDashboardTests(unittest.TestCase):
 
         return resp
 
-    def put_response(self, url, params=None, **kwargs):
+    @staticmethod
+    def put_response(url, params=None, **kwargs):
         resp = MagicMock()
         parts = urlparse(url)
         url = parts[2]
@@ -92,7 +94,8 @@ class IMDashboardTests(unittest.TestCase):
 
         return resp
 
-    def delete_response(self, url, params=None, **kwargs):
+    @staticmethod
+    def delete_response(url, params=None, **kwargs):
         resp = MagicMock()
         parts = urlparse(url)
         url = parts[2]
