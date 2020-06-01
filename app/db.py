@@ -281,7 +281,7 @@ class DataBase:
             return list(self.connection[table_name].find(filt, projection, sort=sort))
 
     def replace(self, table_name, filt, replacement):
-        """Insert/replace elements"""
+        """Insert/replace elements."""
         if self.db_type != DataBase.MONGO:
             raise Exception("Operation only supported in MongoDB")
 
@@ -292,7 +292,7 @@ class DataBase:
             return res.modified_count == 1 or res.upserted_id is not None
 
     def delete(self, table_name, filt):
-        """Delete elements"""
+        """Delete elements."""
         if self.db_type != DataBase.MONGO:
             raise Exception("Operation only supported in MongoDB")
 

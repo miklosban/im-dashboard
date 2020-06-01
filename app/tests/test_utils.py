@@ -22,7 +22,7 @@ from mock import patch, MagicMock
 
 
 class TestUtils(unittest.TestCase):
-    """ Class to test the Utils functions """
+    """Class to test the Utils functions."""
 
     def test_getUserVOs(self):
         entitlements = ['urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu']
