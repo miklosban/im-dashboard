@@ -7,7 +7,7 @@ COPY ./tosca-templates /opt/tosca-templates
 
 ENV PYTHONPATH=/app
 
-RUN pip3 install gunicorn && pip install -r /app/requirements.txt
+RUN pip3 install gunicorn==20.0.4 && pip install -r /app/requirements.txt
 
 EXPOSE 5001
 

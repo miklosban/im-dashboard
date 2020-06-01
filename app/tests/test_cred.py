@@ -23,9 +23,7 @@ from app.cred import Credentials
 
 
 class TestCredentials(unittest.TestCase):
-    """
-    Class to test the Credentials class
-    """
+    """ Class to test the Credentials class """
 
     def tearDown(self):
         os.unlink('/tmp/creds.db')

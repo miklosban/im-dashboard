@@ -1,3 +1,23 @@
+#
+# IM - Infrastructure Manager Dashboard
+# Copyright (C) 2020 - GRyCAP - Universitat Politecnica de Valencia
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 """Class to manage DB operations"""
 import time
 
@@ -43,7 +63,7 @@ except Exception:
 
 # Class to manage DB operations
 class DataBase:
-    """ Class to manage DB operations """
+    """Class to manage DB operations"""
 
     db_available = SQLITE_AVAILABLE or MYSQL_AVAILABLE or MONGO_AVAILABLE
     RETRY_SLEEP = 2
@@ -54,17 +74,17 @@ class DataBase:
     DB_TYPES = [MYSQL, SQLITE]
 
     def __init__(self, db_url):
-        """ Creation function """
+        """Creation function"""
         self.db_url = db_url
         self.connection = None
         self.db_type = None
 
     def connect(self):
         """
-        Function to connect to the DB
+         Function to connect to the DB
 
-        Returns: True if the connection is established correctly
-                 of False in case of errors.
+         Returns: True if the connection is established correctly
+                  of False in case of errors.
         """
         uri = urlparse(self.db_url)
         protocol = uri[0]
@@ -179,7 +199,8 @@ class DataBase:
                     raise IntegrityError()
 
     def execute(self, sql, args=None):
-        """ Executes a SQL sentence without returning results
+        """ 
+            Executes a SQL sentence without returning results
 
             Arguments:
             - sql: The SQL sentence
@@ -193,7 +214,8 @@ class DataBase:
         return self._execute_retry(sql, args)
 
     def select(self, sql, args=None):
-        """ Executes a SQL sentence that returns results
+        """ 
+            Executes a SQL sentence that returns results
 
             Arguments:
             - sql: The SQL sentence
@@ -207,7 +229,7 @@ class DataBase:
         return self._execute_retry(sql, args, fetch=True)
 
     def close(self):
-        """ Closes the DB connection """
+        """Closes the DB connection"""
         if self.connection is None:
             return False
         else:
@@ -221,7 +243,8 @@ class DataBase:
                 return False
 
     def table_exists(self, table_name):
-        """ Checks if a table exists in the DB
+        """ 
+            Checks if a table exists in the DB
 
             Arguments:
             - table_name: The name of the table
@@ -246,7 +269,7 @@ class DataBase:
             return True
 
     def find(self, table_name, filt=None, projection=None, sort=None):
-        """ find elements """
+        """Find elements"""
         if self.db_type != DataBase.MONGO:
             raise Exception("Operation only supported in MongoDB")
 
@@ -258,7 +281,7 @@ class DataBase:
             return list(self.connection[table_name].find(filt, projection, sort=sort))
 
     def replace(self, table_name, filt, replacement):
-        """ insert/replace elements """
+        """Insert/replace elements"""
         if self.db_type != DataBase.MONGO:
             raise Exception("Operation only supported in MongoDB")
 
@@ -269,7 +292,7 @@ class DataBase:
             return res.modified_count == 1 or res.upserted_id is not None
 
     def delete(self, table_name, filt):
-        """ delete elements """
+        """Delete elements"""
         if self.db_type != DataBase.MONGO:
             raise Exception("Operation only supported in MongoDB")
 
@@ -281,7 +304,7 @@ class DataBase:
 
 try:
     class IntegrityError(sqlite.IntegrityError):
-        """ Class to return IntegrityError independently of the DB used"""
+        """Class to return IntegrityError independently of the DB used"""
         pass
 except Exception:
     class IntegrityError:

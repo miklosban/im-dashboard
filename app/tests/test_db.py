@@ -24,9 +24,7 @@ from mock import patch, MagicMock
 
 
 class TestDataBase(unittest.TestCase):
-    """
-    Class to test the DataBase class
-    """
+    """ Class to test the DataBase class """
 
     def test_sqlite_db(self):
         filename = "/tmp/test.dat"
