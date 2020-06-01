@@ -17,16 +17,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-import os
-
 from app import utils
 from mock import patch, MagicMock
 
 
 class TestUtils(unittest.TestCase):
-    """
-    Class to test the Utils functions
-    """
+    """Class to test the Utils functions."""
 
     def test_getUserVOs(self):
         entitlements = ['urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu']

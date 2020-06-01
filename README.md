@@ -3,47 +3,47 @@ Infrastructure Manager - Simple Graphical UI (based on [INDIGO PaaS Orchestrator
 
 Functionalities:
 
-- OIDC authentication
-- Display user's infrastructures
-- Display infrastructure details, template and log
-- Delete infrastructure
-- Create new infrastructure
+  - OIDC authentication
+  - Display user's infrastructures
+  - Display infrastructure details, template and log
+  - Delete infrastructure
+  - Create new infrastructure
 
 The im-dashboard is a Python application built with the [Flask](http://flask.pocoo.org/) microframework; [Flask-Dance](https://flask-dance.readthedocs.io/en/latest/) is used for Openid-Connect/OAuth2 integration.
 
 The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to serve the Flask Application.
 
-# How to deploy the dashboard
+## How to deploy the dashboard
 
 Register a client in an OIDC server with the following properties:
 
-- redirect uri: `https://<DASHBOARD_HOST>:<PORT>/login/oidc/authorized`
-- scopes: 'openid', 'email', 'profile', 'offline_access' ('eduperson_entitlement' in EGI Check-In optional)
-- introspection endpoint enabled
+  - redirect uri: `https://<DASHBOARD_HOST>:<PORT>/login/oidc/authorized`
+  - scopes: 'openid', 'email', 'profile', 'offline_access' ('eduperson_entitlement' in EGI Check-In optional)
+  - introspection endpoint enabled
 
 Create the `config.json` file (see the [example](app/config-sample.json)) setting the following variables:
 
-| Parameter name  | Description | Mandatory (Y/N) | Default Value 
-| -------------- | ------------- |------------- |------------- |
-| OIDC_CLIENT_ID | OIDC client ID | Y | N/A
-| OIDC_CLIENT_SECRET | OIDC client Secret | Y | N/A
-| OIDC_BASE_URL | OIDC service URL | Y | N/A
-| OIDC_GROUP_MEMBERSHIP | List of OIDC groups to be checked for allowing access | N | []
-| OIDC_SCOPES | OIDC scopes | Y | N/A
-| TOSCA_TEMPLATES_DIR | Absolute path where the TOSCA templates are stored | Y | N/A
-| TOSCA_PARAMETERS_DIR | Absolute path where the TOSCA parameters are stored | Y | N/A
-| IM_URL | Infrastructure Manager service URL | Y | N/A
-| SUPPORT_EMAIL | Email address that will be shown in case of errors | N | ""
-| EXTERNAL_LINKS | List of dictionaries ({ "url": "example.com" , "menu_item_name": "Example link"}) specifying links that will be shown under the "External Links" menu | N | []
-| LOG_LEVEL | Set Logging level | N | info
-| CRED_DB_URL | URL to the DB to store site project IDs | N | sqlite:///tmp/creds.db
-| ANALYTICS_TAG | Google Analytic Tag | N | ""
-| STATIC_SITES | List of static sites added to the AppDB ones ([{"name": "static_site_name", "url": "static_site_url", "id": "static_id", "vos": {"vo": "stprojectid"}}]) | N | []
+| Parameter name  | Description | Mandatory (Y/N) | Default Value |
+| --------------- | ----------- |---------------- |-------------- |
+| OIDC_CLIENT_ID  | OIDC client ID | Y | N/A |
+| OIDC_CLIENT_SECRET | OIDC client Secret | Y | N/A |
+| OIDC_BASE_URL | OIDC service URL | Y | N/A |
+| OIDC_GROUP_MEMBERSHIP | List of OIDC groups to be checked for allowing access | N | [] |
+| OIDC_SCOPES | OIDC scopes | Y | N/A |
+| TOSCA_TEMPLATES_DIR | Absolute path where the TOSCA templates are stored | Y | N/A |
+| TOSCA_PARAMETERS_DIR | Absolute path where the TOSCA parameters are stored | Y | N/A |
+| IM_URL | Infrastructure Manager service URL | Y | N/A |
+| SUPPORT_EMAIL | Email address that will be shown in case of errors | N | "" |
+| EXTERNAL_LINKS | List of dictionaries ({ "url": "example.com" , "menu_item_name": "Example link"}) specifying links that will be shown under the "External Links" menu | N | [] |
+| LOG_LEVEL | Set Logging level | N | info |
+| CRED_DB_URL | URL to the DB to store site project IDs | N | sqlite:///tmp/creds.db |
+| ANALYTICS_TAG | Google Analytic Tag | N | "" |
+| STATIC_SITES | List of static sites added to the AppDB ones ([{"name": "static_site_name", "url": "static_site_url", "id": "static_id", "vos": {"vo": "stprojectid"}}]) | N | [] |
 
 You need to run the IM dashboard on HTTPS (otherwise you will get an error); you can choose between
 
-- enabling the HTTPS support
-- using an HTTPS proxy
+  - enabling the HTTPS support
+  - using an HTTPS proxy
 
 Details are provided in the next paragraphs.
 
@@ -51,10 +51,9 @@ Details are provided in the next paragraphs.
 
 The IM dashboard can exploit some optional information provided in the TOSCA templates for rendering the cards describing the type of applications/services or virtual infrastructure that a user can deploy.
 
-
 In particular, the following tags are supported:
 
-| Tag name  | Description 
+| Tag name       | Description   |
 | -------------- | ------------- |
 | description | Used for showing the card description  |               |
 | metadata.display_name | Used for the card title. If not pro  |               |
