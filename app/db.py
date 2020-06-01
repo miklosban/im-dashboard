@@ -9,9 +9,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -199,7 +199,7 @@ class DataBase:
                     raise IntegrityError()
 
     def execute(self, sql, args=None):
-        """ 
+        """
             Executes a SQL sentence without returning results
 
             Arguments:
@@ -214,7 +214,7 @@ class DataBase:
         return self._execute_retry(sql, args)
 
     def select(self, sql, args=None):
-        """ 
+        """
             Executes a SQL sentence that returns results
 
             Arguments:
@@ -243,7 +243,7 @@ class DataBase:
                 return False
 
     def table_exists(self, table_name):
-        """ 
+        """
             Checks if a table exists in the DB
 
             Arguments:
