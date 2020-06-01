@@ -27,12 +27,12 @@ APPDB_URL = "https://appdb.egi.eu"
 
 
 def appdb_call(path, retries=3, url=APPDB_URL):
-    """ Basic AppDB REST API call """
+    """Basic AppDB REST API call."""
     data = None
     try:
         cont = 0
         while data is None and cont < retries:
-            cont + 1
+            cont += 1
             resp = requests.request("GET", url + path, verify=False)
             if resp.status_code == 200:
                 data = xmltodict.parse(resp.text.replace('\n', ''))['appdb:appdb']

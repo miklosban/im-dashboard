@@ -23,6 +23,7 @@
 
 class Settings:
     def __init__(self, config):
+        """Creator function."""
         self.toscaDir = config['TOSCA_TEMPLATES_DIR'] + "/"
         self.toscaParamsDir = config.get('TOSCA_PARAMETERS_DIR') + "/"
         self.imUrl = config['IM_URL']
