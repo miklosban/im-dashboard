@@ -80,7 +80,6 @@ class IMDashboardTests(unittest.TestCase):
         resp = MagicMock()
         parts = urlparse(url)
         url = parts[2]
-        params = parts[4]
 
         resp.status_code = 404
         resp.ok = False
@@ -99,7 +98,6 @@ class IMDashboardTests(unittest.TestCase):
         resp = MagicMock()
         parts = urlparse(url)
         url = parts[2]
-        params = parts[4]
 
         resp.status_code = 404
         resp.ok = False
@@ -117,7 +115,6 @@ class IMDashboardTests(unittest.TestCase):
         resp = MagicMock()
         parts = urlparse(url)
         url = parts[2]
-        params = parts[4]
 
         resp.status_code = 404
         resp.ok = False

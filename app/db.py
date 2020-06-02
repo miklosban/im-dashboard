@@ -74,17 +74,17 @@ class DataBase:
     DB_TYPES = [MYSQL, SQLITE]
 
     def __init__(self, db_url):
-        """Creation function"""
+        """Creation function."""
         self.db_url = db_url
         self.connection = None
         self.db_type = None
 
     def connect(self):
         """
-         Function to connect to the DB
+            Function to connect to the DB
 
-         Returns: True if the connection is established correctly
-                  of False in case of errors.
+            Returns: True if the connection is established correctly
+                     of False in case of errors.
         """
         uri = urlparse(self.db_url)
         protocol = uri[0]
