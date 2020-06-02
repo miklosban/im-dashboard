@@ -32,9 +32,7 @@ def read_file_as_string(file_name):
 
 
 class TestAppDB(unittest.TestCase):
-    """
-    Class to test the AppDB functions
-    """
+    """Class to test the AppDB functions."""
 
     @staticmethod
     def requests_response(method, url, **kwargs):
