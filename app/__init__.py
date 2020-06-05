@@ -616,7 +616,7 @@ def create_app(oidc_blueprint=None):
         response = requests.get(url, headers=headers)
 
         if response.ok:
-            try:.text
+            try:
                 radl = radl_parse.parse_radl(response.text)
             except Exception as ex:
                 flash("Error parsing RADL: \n%s" % str(ex), 'error')
