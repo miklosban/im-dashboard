@@ -13,6 +13,6 @@
     "LOG_LEVEL": "info",
     "DB_URL": "sqlite:///creds.db",
     "ANALYTICS_TAG": "",
-    "STATIC_SITES": [{"name": "static_site_name", "url": "static_site_url", "id": "static_id", "vos": {"vo": "stprojectid"}}],
+    "STATIC_SITES": [{"name": "static_site_name", "url": "static_site_url", "id": "static_id", "vos": {"vo": "stprojectid"}, "api_version": "1.1"}],
     "STATIC_SITES_URL": ""
 }

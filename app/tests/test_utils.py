@@ -30,10 +30,12 @@ class TestUtils(unittest.TestCase):
         self.assertEquals(res, ['vo.test.egi.eu'])
 
     @patch("app.utils.getCachedSiteList")
-    def test_getUserAuthData(self, getCachedSiteList):
+    @patch("app.utils._getStaticSitesInfo")
+    def test_getUserAuthData(self, getStaticSitesInfo, getCachedSiteList):
         cred = MagicMock()
         cred.get_cred.return_value = {"project": "project_name"}
         getCachedSiteList.return_value = {'CESGA': ('https://fedcloud-osservices.egi.cesga.es:5000', '', '11548G0')}
+        getStaticSitesInfo.return_value = [{"name": "static_site_name", "api_version": "1.1"}]
         res = utils.getUserAuthData("token", cred, "user")
         self.assertEquals(res, ("type = InfrastructureManager; token = token\\nid = ost1; type = OpenStack;"
                                 " username = egi.eu; tenant = openid; auth_version = 3.x_oidc_access_token;"

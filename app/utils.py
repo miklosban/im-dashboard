@@ -143,11 +143,12 @@ def getCachedSiteList():
 
 
 def getUserAuthData(access_token, cred, userid):
-    global SITE_LIST
-    global LAST_UPDATE
-    global CACHE_DELAY
-
     res = "type = InfrastructureManager; token = %s" % access_token
+
+    api_versions = {}
+    for site in _getStaticSitesInfo():
+        if "api_version" in site:
+            api_versions[site["name"]] = site["api_version"]
 
     cont = 0
     for site_name, (site_url, _, _) in getCachedSiteList().items():
@@ -158,6 +159,8 @@ def getUserAuthData(access_token, cred, userid):
         res += " host = %s; password = '%s'" % (site_url, access_token)
         if creds and "project" in creds and creds["project"]:
             res += "; domain = %s" % creds["project"]
+        if site_name in api_versions:
+            res += "; api_version  = %s" % api_versions[site_name]
 
     return res
 
