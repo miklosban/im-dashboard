@@ -103,6 +103,7 @@
                       <div class="modal-footer">
                         <a class="btn btn-primary cancelBtn" role="button" data-dismiss="modal">Cancel</a>
                         <a class="btn btn-danger deleteBtn" role="button" href="{{ url_for("infdel", infid=infId) }}">Delete</a>
+                        <a class="btn btn-danger foceDeleteBtn" role="button" title="The infrastructure will be deleted even if sonme resources are not correctly deleted" href="{{ url_for("infdel", infid=infId, force=True) }}"><span class="fas fa-exclamation-triangle mr-2"></span>Force Delete</a>
                       </div>
                     </div>
                   </div>
