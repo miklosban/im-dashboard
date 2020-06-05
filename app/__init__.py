@@ -29,6 +29,7 @@ from werkzeug.contrib.fixers import ProxyFix
 from flask_dance.consumer import OAuth2ConsumerBlueprint
 from app.settings import Settings
 from app.cred import Credentials
+from app.infra import Infrastructures
 from app import utils, appdb
 from oauthlib.oauth2.rfc6749.errors import InvalidTokenError, TokenExpiredError
 from werkzeug.exceptions import Forbidden
@@ -45,7 +46,8 @@ def create_app(oidc_blueprint=None):
     app.secret_key = "8210f566-4981-11ea-92d1-f079596e599b"
     app.config.from_json('config.json')
     settings = Settings(app.config)
-    cred = Credentials(settings.cred_db_url)
+    cred = Credentials(settings.db_url)
+    infra = Infrastructures(settings.db_url)
 
     toscaTemplates = utils.loadToscaTemplates(settings.toscaDir)
     toscaInfo = utils.extractToscaInfo(settings.toscaDir, settings.toscaParamsDir, toscaTemplates)
@@ -284,6 +286,13 @@ def create_app(oidc_blueprint=None):
                     inf_state = response.json()
                     infrastructures[os.path.basename(inf_id)] = inf_state['state']
 
+                try:
+                    infra_name = infra.get_infra(os.path.basename(inf_id))["name"]
+                except Exception:
+                    infra_name = ""
+
+                infrastructures[os.path.basename(inf_id)]['name'] = infra_name
+
         return render_template('infrastructures.html', infrastructures=infrastructures)
 
     @app.route('/reconfigure/<infid>')
@@ -390,6 +399,10 @@ def create_app(oidc_blueprint=None):
             flash("Error deleting infrastructure: " + response.text, "error")
         else:
             flash("Infrastructure '%s' successfuly deleted." % infid, "info")
+            try:
+                infra.delete_infra(infid)
+            except Exception as ex:
+                flash("Error deleting infrastructure name: %s" + str(ex), "warning")
 
         return redirect(url_for('showinfrastructures'))
 
@@ -526,6 +539,12 @@ def create_app(oidc_blueprint=None):
 
         if not response.ok:
             flash("Error creating infrastrucrure: \n" + response.text, "error")
+        else:
+            try:
+                inf_id = os.path.basename(response.text)
+                infra.write_infra(inf_id, {"name": form_data['infra_name']})
+            except Exception as ex:
+                flash("Error storing Infrastructure name: %s" % str(ex), "warning")
 
         return redirect(url_for('showinfrastructures'))
 
