@@ -386,13 +386,15 @@ def create_app(oidc_blueprint=None):
 
     @app.route('/delete/<infid>')
     @authorized_with_valid_token
-    def infdel(infid=None):
+    def infdel(infid=None, force=False):
 
         access_token = oidc_blueprint.session.token['access_token']
         auth_data = utils.getUserAuthData(access_token, cred, session["userid"])
         headers = {"Authorization": auth_data}
 
         url = "%s/infrastructures/%s?async=1" % (settings.imUrl, infid)
+        if force:
+            url += "&force=1"
         response = requests.delete(url, headers=headers)
 
         if not response.ok:
