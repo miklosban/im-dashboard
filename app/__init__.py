@@ -287,7 +287,7 @@ def create_app(oidc_blueprint=None):
                     infrastructures[os.path.basename(inf_id)] = inf_state['state']
 
                 try:
-                    infra_name = infra.get_infra(os.path.basename(inf_id))
+                    infra_name = infra.get_infra(os.path.basename(inf_id))["name"]
                 except Exception as ex:
                     infra_name = ""
                 
