@@ -537,7 +537,7 @@ def create_app(oidc_blueprint=None):
             flash("Error creating infrastrucrure: \n" + response.text, "error")
         else:
             try:
-                inf_id = os.path.basename(response.json()["uri"])
+                inf_id = os.path.basename(response.text)
                 infra.write_infra(inf_id, '{"name", "%s"}' % form_data['infra_name'])
             except Exception as ex:
                 flash("Error storing Infrastructure name: %s" % str(ex), "warning")
@@ -616,7 +616,7 @@ def create_app(oidc_blueprint=None):
         response = requests.get(url, headers=headers)
 
         if response.ok:
-            try:
+            try:.text
                 radl = radl_parse.parse_radl(response.text)
             except Exception as ex:
                 flash("Error parsing RADL: \n%s" % str(ex), 'error')
