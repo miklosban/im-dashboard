@@ -32,7 +32,7 @@ class Settings:
         self.imConf = {'im_url': config.get('IM_URL')}
         self.external_links = config.get('EXTERNAL_LINKS') if config.get('EXTERNAL_LINKS') else []
         self.oidcGroups = config.get('OIDC_GROUP_MEMBERSHIP')
-        self.cred_db_url = config.get('CRED_DB_URL')
+        self.db_url = config.get('DB_URL')
         self.analytics_tag = config.get('ANALYTICS_TAG')
         self.static_sites = config.get('STATIC_SITES')
         self.static_sites_url = config.get('STATIC_SITES_URL')

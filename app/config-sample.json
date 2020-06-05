@@ -11,7 +11,7 @@
     "EXTERNAL_LINKS": [ { "url": "https://appsgrycap.i3m.upv.es:31443/im-web/", "menu_item_name": "IM web Portal" },
                         { "url": "https://imdocs.readthedocs.io/", "menu_item_name": "IM Docs" } ],
     "LOG_LEVEL": "info",
-    "CRED_DB_URL": "sqlite:///creds.db",
+    "DB_URL": "sqlite:///creds.db",
     "ANALYTICS_TAG": "",
     "STATIC_SITES": [{"name": "static_site_name", "url": "static_site_url", "id": "static_id", "vos": {"vo": "stprojectid"}}],
     "STATIC_SITES_URL": ""

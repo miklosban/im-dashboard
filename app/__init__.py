@@ -29,6 +29,7 @@ from werkzeug.contrib.fixers import ProxyFix
 from flask_dance.consumer import OAuth2ConsumerBlueprint
 from app.settings import Settings
 from app.cred import Credentials
+from app.infra import Infrastructures
 from app import utils, appdb
 from oauthlib.oauth2.rfc6749.errors import InvalidTokenError, TokenExpiredError
 from werkzeug.exceptions import Forbidden
@@ -45,7 +46,8 @@ def create_app(oidc_blueprint=None):
     app.secret_key = "8210f566-4981-11ea-92d1-f079596e599b"
     app.config.from_json('config.json')
     settings = Settings(app.config)
-    cred = Credentials(settings.cred_db_url)
+    cred = Credentials(settings.db_url)
+    infra = Infrastructures(settings.db_url)
 
     toscaTemplates = utils.loadToscaTemplates(settings.toscaDir)
     toscaInfo = utils.extractToscaInfo(settings.toscaDir, settings.toscaParamsDir, toscaTemplates)
@@ -283,6 +285,13 @@ def create_app(oidc_blueprint=None):
                 else:
                     inf_state = response.json()
                     infrastructures[os.path.basename(inf_id)] = inf_state['state']
+
+                try:
+                    infra_name = infra.get_infra(os.path.basename(inf_id))
+                except Exception as ex:
+                    infra_name = ""
+                
+                infrastructures[os.path.basename(inf_id)]['name'] = infra_name
 
         return render_template('infrastructures.html', infrastructures=infrastructures)
 
@@ -526,6 +535,12 @@ def create_app(oidc_blueprint=None):
 
         if not response.ok:
             flash("Error creating infrastrucrure: \n" + response.text, "error")
+        else:
+            try:
+                inf_id = os.path.basename(response.json()["uri"])
+                infra.write_infra(inf_id, '{"name", "%s"}' % form_data['infra_name'])
+            except Exception as ex:
+                flash("Error storing Infrastructure name: %s" % str(ex), "warning")
 
         return redirect(url_for('showinfrastructures'))
 
