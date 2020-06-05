@@ -26,6 +26,7 @@ from app.db import DataBase
 class Infrastructures:
 
     def __init__(self, inf_db_url):
+        """Creation function."""
         self.inf_db_url = inf_db_url
 
     def _get_inf_db(self):
