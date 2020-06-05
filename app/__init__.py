@@ -290,7 +290,7 @@ def create_app(oidc_blueprint=None):
                     infra_name = infra.get_infra(os.path.basename(inf_id))["name"]
                 except Exception as ex:
                     infra_name = ""
-                
+
                 infrastructures[os.path.basename(inf_id)]['name'] = infra_name
 
         return render_template('infrastructures.html', infrastructures=infrastructures)
@@ -399,6 +399,10 @@ def create_app(oidc_blueprint=None):
             flash("Error deleting infrastructure: " + response.text, "error")
         else:
             flash("Infrastructure '%s' successfuly deleted." % infid, "info")
+            try:
+                infra.delete_infra(infid)
+            except Exception as ex:
+                flash("Error deleting infrastructure name: %s" + str(ex), "warning")
 
         return redirect(url_for('showinfrastructures'))
 
