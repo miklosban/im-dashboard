@@ -281,17 +281,17 @@ def create_app(oidc_blueprint=None):
                 url = "%s/state" % inf_id
                 response = requests.get(url, headers=headers)
                 if not response.ok:
-                    flash("Error retrieving infrastructure %s state: \n%s" % (inf_id, response.text), 'error')
+                    flash("Error retrieving infrastructure %s state: \n%s" % (inf_id, response.text), 'warning')
                 else:
                     inf_state = response.json()
                     infrastructures[os.path.basename(inf_id)] = inf_state['state']
 
-                try:
-                    infra_name = infra.get_infra(os.path.basename(inf_id))["name"]
-                except Exception:
-                    infra_name = ""
+                    try:
+                        infra_name = infra.get_infra(os.path.basename(inf_id))["name"]
+                    except Exception:
+                        infra_name = ""
 
-                infrastructures[os.path.basename(inf_id)]['name'] = infra_name
+                    infrastructures[os.path.basename(inf_id)]['name'] = infra_name
 
         return render_template('infrastructures.html', infrastructures=infrastructures)
 
