@@ -57,11 +57,11 @@ def _getStaticSitesInfo():
 
 
 def getStaticSitesProjectIDs(serviceid):
-    res = []
+    res = {}
     for site in _getStaticSitesInfo():
         if serviceid == site["id"]:
             for vo, projectid in site["vos"].items():
-                res.append((vo, projectid))
+                res[vo] = projectid
 
     return res
 
@@ -142,7 +142,7 @@ def getCachedSiteList():
         return SITE_LIST
 
 
-def getUserAuthData(access_token, cred, userid):
+def getUserAuthData(access_token, cred, userid, vo=None, site=None):
     res = "type = InfrastructureManager; token = %s" % access_token
 
     api_versions = {}
@@ -151,14 +151,27 @@ def getUserAuthData(access_token, cred, userid):
             api_versions[site["name"]] = site["api_version"]
 
     cont = 0
-    for site_name, (site_url, _, _) in getCachedSiteList().items():
+    for site_name, (site_url, _, site_id) in getCachedSiteList().items():
         cont += 1
         creds = cred.get_cred(site_name, userid)
         res += "\\nid = ost%s; type = OpenStack; username = egi.eu; " % cont
         res += "tenant = openid; auth_version = 3.x_oidc_access_token;"
         res += " host = %s; password = '%s'" % (site_url, access_token)
-        if creds and "project" in creds and creds["project"]:
-            res += "; domain = %s" % creds["project"]
+        projectid = None
+        if vo and site and site == site_url:
+            project_ids = appdb.get_project_ids(site_id)
+            if vo in project_ids:
+                projectid = project_ids[vo]
+                # Update the creds with the new projectid
+                try:
+                    cred.write_creds(site_name, userid, {"project": projectid})
+                except:
+                    flash("Error updating Service Credentials for site %s" % site_name, 'warning')
+        
+        if not projectid and creds and "project" in creds and creds["project"]:
+            projectid = creds["project"]
+        
+        res += "; domain = %s" % projectid
         if site_name in api_versions:
             res += "; api_version  = %s" % api_versions[site_name]
 

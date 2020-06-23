@@ -349,7 +349,7 @@ class IMDashboardTests(unittest.TestCase):
     def test_write_creds(self, get_project_ids, flash, get_cred, avatar):
         self.login(avatar)
         get_cred.return_value = {"project": "PROJECT_NAME"}
-        get_project_ids.return_value = [("VO_NAME", "PROJECT_ID")]
+        get_project_ids.return_value = {"VO_NAME": "PROJECT_ID"}
         res = self.client.get('/write_creds?service_id=static_id')
         self.assertEqual(200, res.status_code)
         self.assertIn(b'PROJECT_NAME', res.data)
