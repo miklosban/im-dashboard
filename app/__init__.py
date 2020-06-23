@@ -582,7 +582,7 @@ def create_app(oidc_blueprint=None):
                 if session["vos"]:
                     filter_projects = {}
                     for vo, project in projects.items():
-                         if project in session["vos"]:
+                         if vo in session["vos"]:
                              filter_projects[vo] = project
                     projects = filter_projects
             except Exception as ex:
