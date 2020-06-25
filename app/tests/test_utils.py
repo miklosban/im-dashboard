@@ -25,9 +25,10 @@ class TestUtils(unittest.TestCase):
     """Class to test the Utils functions."""
 
     def test_getUserVOs(self):
-        entitlements = ['urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu']
+        entitlements = ['urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu',
+                        'urn:mace:egi.eu:group:vo.test2.egi.eu:role=member#aai.egi.eu']
         res = utils.getUserVOs(entitlements)
-        self.assertEquals(res, ['vo.test.egi.eu'])
+        self.assertEquals(res, ['vo.test.egi.eu', 'vo.test2.egi.eu'])
 
     @patch("app.utils.getCachedSiteList")
     @patch("app.utils._getStaticSitesInfo")

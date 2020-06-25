@@ -136,7 +136,9 @@ class IMDashboardTests(unittest.TestCase):
         self.oauth.session.token = {'expires_in': 500, 'access_token': 'token'}
         account_info = MagicMock()
         account_info.ok = True
-        account_info.json.return_value = {"sub": "userid", "name": "username"}
+        account_info.json.return_value = {"sub": "userid", "name": "username",
+                                          "eduperson_entitlement": ["urn:mace:egi.eu:group:VO_NAME:role=AAIROLE#aai.egi.eu",
+                                                                    "urn:mace:egi.eu:group:vo:role=AAIROLE#aai.egi.eu"]}
         self.oauth.session.get.return_value = account_info
         avatar.return_value = ""
         return self.client.get('/')

@@ -120,7 +120,9 @@ def getUserVOs(entitlements):
     vos = []
     for elem in entitlements:
         if elem.startswith('urn:mace:egi.eu:group:'):
-            vos.append(elem[22:22 + elem[22:].find(':')])
+            vo = elem[22:22 + elem[22:].find(':')]
+            if vo:
+                vos.append(vo)
     return vos
 
 
