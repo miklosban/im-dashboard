@@ -160,7 +160,7 @@ def getUserAuthData(access_token, cred, userid, vo=None, site=None):
         res += "tenant = openid; auth_version = 3.x_oidc_access_token;"
         res += " host = %s; password = '%s'" % (site_url, access_token)
         projectid = None
-        if vo and site and site == site_url:
+        if vo and site and site == site_name:
             project_ids = appdb.get_project_ids(site_id)
             if vo in project_ids:
                 projectid = project_ids[vo]
