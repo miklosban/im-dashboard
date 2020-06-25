@@ -32,16 +32,25 @@ class TestUtils(unittest.TestCase):
 
     @patch("app.utils.getCachedSiteList")
     @patch("app.utils._getStaticSitesInfo")
-    def test_getUserAuthData(self, getStaticSitesInfo, getCachedSiteList):
+    @patch("app.appdb.get_project_ids")
+    def test_getUserAuthData(self, get_project_ids, getStaticSitesInfo, getCachedSiteList):
         cred = MagicMock()
         cred.get_cred.return_value = {"project": "project_name"}
         getCachedSiteList.return_value = {'CESGA': ('https://fedcloud-osservices.egi.cesga.es:5000', '', '11548G0')}
         getStaticSitesInfo.return_value = [{"name": "static_site_name", "api_version": "1.1"}]
+        get_project_ids.return_value = {"vo_name": "project_id"}
+
         res = utils.getUserAuthData("token", cred, "user")
         self.assertEquals(res, ("type = InfrastructureManager; token = token\\nid = ost1; type = OpenStack;"
                                 " username = egi.eu; tenant = openid; auth_version = 3.x_oidc_access_token;"
                                 " host = https://fedcloud-osservices.egi.cesga.es:5000; password = 'token';"
                                 " domain = project_name"))
+
+        res = utils.getUserAuthData("token", cred, "user", "vo_name", "CESGA")
+        self.assertEquals(res, ("type = InfrastructureManager; token = token\\nid = ost1; type = OpenStack;"
+                                " username = egi.eu; tenant = openid; auth_version = 3.x_oidc_access_token;"
+                                " host = https://fedcloud-osservices.egi.cesga.es:5000; password = 'token';"
+                                " domain = project_id"))
 
     @patch("app.utils.getCachedSiteList")
     @patch('libcloud.compute.drivers.openstack.OpenStackNodeDriver')

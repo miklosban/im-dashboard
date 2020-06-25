@@ -144,7 +144,7 @@ def getCachedSiteList():
         return SITE_LIST
 
 
-def getUserAuthData(access_token, cred, userid, vo=None, site=None):
+def getUserAuthData(access_token, cred, userid, vo=None, selected_site=None):
     res = "type = InfrastructureManager; token = %s" % access_token
 
     api_versions = {}
@@ -160,7 +160,7 @@ def getUserAuthData(access_token, cred, userid, vo=None, site=None):
         res += "tenant = openid; auth_version = 3.x_oidc_access_token;"
         res += " host = %s; password = '%s'" % (site_url, access_token)
         projectid = None
-        if vo and site and site == site_name:
+        if vo and selected_site and selected_site == site_name:
             project_ids = appdb.get_project_ids(site_id)
             if vo in project_ids:
                 projectid = project_ids[vo]
