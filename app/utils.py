@@ -167,12 +167,12 @@ def getUserAuthData(access_token, cred, userid, vo=None, site=None):
                 # Update the creds with the new projectid
                 try:
                     cred.write_creds(site_name, userid, {"project": projectid})
-                except:
+                except Exception:
                     flash("Error updating Service Credentials for site %s" % site_name, 'warning')
-        
+
         if not projectid and creds and "project" in creds and creds["project"]:
             projectid = creds["project"]
-        
+
         res += "; domain = %s" % projectid
         if site_name in api_versions:
             res += "; api_version  = %s" % api_versions[site_name]

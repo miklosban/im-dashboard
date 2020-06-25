@@ -582,8 +582,8 @@ def create_app(oidc_blueprint=None):
                 if session["vos"]:
                     filter_projects = {}
                     for vo, project in projects.items():
-                         if vo in session["vos"]:
-                             filter_projects[vo] = project
+                        if vo in session["vos"]:
+                            filter_projects[vo] = project
                     projects = filter_projects
             except Exception as ex:
                 flash("Error reading credentials %s!" % ex, 'error')
