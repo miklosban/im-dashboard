@@ -15,9 +15,9 @@
       number_cpus:
         type: integer
         description: number of cpus required for the instance
-        default: 1
+        default: 4
         constraints:
-        - valid_values: [ 1, 2, 4, 8, 16, 32 ]
+        - valid_values: [ 2, 4, 8, 16, 32 ]
       memory_size:
         type: string
         description: ram memory required for the instance
@@ -62,6 +62,12 @@
                 ssh_port:
                   protocol: tcp
                   source: 22
+                https_port:
+                  protocol: tcp
+                  source: 443
+                postgres_port:
+                  protocol: tcp
+                  source: 5432
           host:
            properties:
              num_cpus: { get_input: number_cpus }
