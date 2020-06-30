@@ -161,7 +161,8 @@ def getUserAuthData(access_token, cred, userid, vo=None, selected_site=None):
         res += " host = %s; password = '%s'" % (site_url, access_token)
         projectid = None
         if vo and selected_site and selected_site == site_name:
-            project_ids = appdb.get_project_ids(site_id)
+            project_ids = getStaticSitesProjectIDs(site_id)
+            project_ids.update(appdb.get_project_ids(site_id))
             if vo in project_ids:
                 projectid = project_ids[vo]
                 # Update the creds with the new projectid
