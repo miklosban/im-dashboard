@@ -277,7 +277,7 @@ class IMDashboardTests(unittest.TestCase):
         user_data.return_value = "type = InfrastructureManager; token = access_token"
         delete.side_effect = self.delete_response
         self.login(avatar)
-        res = self.client.get('/delete/infid')
+        res = self.client.get('/delete/infid/0')
         self.assertEqual(302, res.status_code)
         self.assertIn('http://localhost/infrastructures', res.headers['location'])
         self.assertEquals(flash.call_args_list[0][0], ("Infrastructure 'infid' successfuly deleted.", 'info'))
