@@ -384,10 +384,9 @@ def create_app(oidc_blueprint=None):
 
         return render_template('outputs.html', infid=infid, outputs=outputs)
 
-    @app.route('/delete/<infid>')
+    @app.route('/delete/<infid>/<force>')
     @authorized_with_valid_token
-    def infdel(infid=None, force=False):
-
+    def infdel(infid=None, force=0):
         access_token = oidc_blueprint.session.token['access_token']
         auth_data = utils.getUserAuthData(access_token, cred, session["userid"])
         headers = {"Authorization": auth_data}
