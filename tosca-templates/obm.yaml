@@ -6,7 +6,7 @@
   description: TOSCA template for deploying an instance for OpenBioMaps using the type SoftwareComponent
   
   metadata:
-    display_name: Deploy a OpenBioMaps portal
+    display_name: Deploy an OpenBioMaps portal
     icon: https://openbiomaps.org/img/OpenBioMaps.png
     tag: VM
 
